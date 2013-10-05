@@ -1,0 +1,18 @@
+{
+  "name": "json-schema-valid",
+  "repo": "ericgj/json-schema-valid",
+  "description": "JSON Schema validator",
+  "version": "0.0.1",
+  "keywords": [],
+  "dependencies": {
+    "ericgj/json-schema-core": "*",
+    "component/type": "*",
+    "component/indexof": "*"
+  },
+  "development": {},
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": [
+    "index.js"
+  ]
+}
