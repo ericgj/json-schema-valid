@@ -2,8 +2,12 @@
 
 var indexOf = require('indexof')
   , type  = require('type')
+  , find  = require('find')
+  , each  = require('each')
+  , Emitter = require('emitter')
   , core  = require('json-schema-core')
   , Schema = core.Schema
+  , has   = hasOwnProperty
 
 /* not sure how far to break things down
 
@@ -29,7 +33,9 @@ var formatDate = require('./formatters/date')
 */
 
 
-var TYPE_VALIDATORS = {
+var TYPE_VALIDATORS = {}
+
+/*
   'array': validateArray,
   'boolean': validateBoolean,
   'integer': validateNumber,
@@ -37,39 +43,57 @@ var TYPE_VALIDATORS = {
   'number': validateNumber,
   'object': validateObject,
   'string': validateString
-}
+*/
+
 
 // Note: built-in
 
-var FORMAT_VALIDATORS = {
+var FORMAT_VALIDATORS = {}
+
+/*
   'date': formatDate,
   'time': formatTime,
   'utc-millisec': formatUTC,
   'regex': formatRegex
-}
+*/
+
 
 /******************************** 
  * Schema plugin
- * adds validate() to correlation
- *
+ * adds validate() and resolveLinks() to correlation
+ * Note that resolveLinks() is used for links() and related methods
+ *   when multiple valid schemas apply: cf. json-schema-hyper plugin.
  */
 module.exports = plugin;
 
 function plugin(target){
   target.addBinding('validate',validateBinding);
+  target.addBinding('resolveLinks',resolveLinksBinding);
 }
 
-plugin.addFormatter(key,fn){
+plugin.addFormatter = function(key,fn){
   FORMAT_VALIDATORS[key] = fn;
   return this;
 }
 
+plugin.addValidator = function(key,fn){
+  TYPE_VALIDATORS[key] = fn;
+  return this;
+}
+
 function validateBinding(fn){
-  var schema = this.schema
-    , instance = this.instance
-  if (!schema || !instance) return; 
-  Emitter(this);    // adds emitter methods/state to correlation
-  validate.call(schema, instance, { emitter: this }, fn);
+  if (!this.schema || !this.instance) return;
+  if (!has.call(this,'emit')) Emitter(this);    // adds emitter methods/state to correlation
+  return validate.call(this.schema, this.instance, { emitter: this }, fn);
+}
+
+function resolveLinksBinding(){
+  var links;
+  var valid = this.validate( function(schemas){
+    links = mergeLinks(schemas);
+  })
+  if (!valid) return undefined;
+  return links.resolve(this.instance);
 }
 
 
@@ -80,16 +104,19 @@ function validateBinding(fn){
 function validate(instance,ctx,fn){
 
   ctx = ctx || {};
+  var valid = true
 
-  validateType.call(this, instance, ctx, function(t){
-    TYPE_VALIDATORS[t].call(this, instance, ctx);
-  })
+  valid = validateType.call(this, instance, ctx, function(t){
+    var validator = TYPE_VALIDATORS[t]
+    if (validator) valid = (validator.call(this, instance, ctx) && valid);
+  }) && valid
 
-  validateFormat.call(this, instance, ctx);
+  valid = validateFormat.call(this, instance, ctx) && valid;
 
-  validateCombinations.call(this, instance, ctx, fn);
+  valid = validateCombinations.call(this, instance, ctx, fn) && valid;
 
-})
+  return (valid);
+}
 
 
 function validateType(instance,ctx,fn){
@@ -124,9 +151,9 @@ function validateCombinations(instance,ctx,fn){
     , oneOf = this.get('oneOf')
     , not   = this.get('not')
  
-  var valids = [], valid = true
+  var valids = [this], valid = true
   var collect = function(schemas){
-    valids.concat.apply(valids,schemas);
+    valids.push.apply(valids,schemas);
   }
 
   if (allOf) valid = validateAllOf.call(this,instance,ctx,collect) && valid;
@@ -134,11 +161,7 @@ function validateCombinations(instance,ctx,fn){
   if (oneOf) valid = validateOneOf.call(this.instance,ctx,collect) && valid;
   if (not)   valid = validateNot.call(this,instance,ctx) && valid;
 
-  if (valid && fn){
-    valids.length > 0 ? fn(Schema.allOf(valids))   // 'reduce' to union schema
-                      : fn(this);
-  }
-
+  if (valid && fn) fn(valids);
   return (valid);
 }
 
@@ -150,10 +173,13 @@ function validateAllOf(instance,ctx,fn){
   if (!allof) return;
 
   var valids = [], valid = true
-  allof.each( function(schema){
-    valid = validate.call(schema,instance,ctx) && valid
-    if (valid) valids.push(schema);
+  var collect = function(schemas){
+    valids.push.apply(valids,schemas);
   }
+
+  allof.each( function(i,schema){
+    valid = validate.call(schema,instance,ctx,collect) && valid
+  });
   
   if (valid && fn && valids.length > 0) fn(valids);
 
@@ -165,10 +191,13 @@ function validateAnyOf(instance,ctx,fn){
   if (!anyof) return;
 
   var valids = [], valid = false
-  anyof.each( function(schema){
-    valid = validate.call(schema,instance,ctx) || valid
-    if (valid) valids.push(schema);
+  var collect = function(schemas){
+    valids.push.apply(valids,schemas);
   }
+
+  anyof.each( function(i,schema){
+    valid = validate.call(schema,instance,ctx,collect) || valid
+  });
   
   if (valid && fn && valids.length > 0) fn(valids);
 
@@ -180,10 +209,13 @@ function validateOneOf(instance,ctx,fn){
   if (!oneof) return;
 
   var valids = [], valid = false
-  oneof.each( function(schema){
-    valid = validate.call(schema,instance,ctx) && !valid
-    if (valid) valids.push(schema);
+  var collect = function(schemas){
+    valids.push.apply(valids,schemas);
   }
+
+  oneof.each( function(i,schema){
+    valid = validate.call(schema,instance,ctx,collect) && !valid
+  });
   
   if (valid && fn && valids.length > 0) fn(valids);
 
@@ -203,6 +235,21 @@ function validateNot(instance,ctx){
 
 
 // utils
+
+function mergeLinks(schemas){
+  schemas = type(schemas) == 'array' ? schemas : [schemas];
+  var target = new Schema().parse({links: []});
+  var targetLinks = target.get('links');
+  each(schemas, function(schema){
+    var links = schema.get('links')
+    if (links){
+      links.each( function(i,link){
+        targetLinks.set(link);
+      });
+    }
+  })
+  return targetLinks;
+}
 
 function assert(value, message){
   return (!value ? new Error(message) : undefined)

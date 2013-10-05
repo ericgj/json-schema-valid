@@ -6,13 +6,20 @@
   "keywords": [],
   "dependencies": {
     "ericgj/json-schema-core": "*",
+    "component/emitter": "*",
     "component/type": "*",
-    "component/indexof": "*"
+    "component/indexof": "*",
+    "component/each": "*",
+    "component/find": "*"
   },
-  "development": {},
+  "development": {
+    "timoxley/assert": "*",
+    "ericgj/json-schema-hyper": "*"
+  },
   "license": "MIT",
   "main": "index.js",
   "scripts": [
     "index.js"
   ]
 }
+
