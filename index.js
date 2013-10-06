@@ -76,12 +76,12 @@ function plugin(target){
   target.addBinding('subschema',subschemaBinding);
 }
 
-plugin.addFormatter = function(key,fn){
+plugin.addFormat = function(key,fn){
   FORMAT_VALIDATORS[key] = fn;
   return this;
 }
 
-plugin.addValidator = function(key,fn){
+plugin.addType = function(key,fn){
   TYPE_VALIDATORS[key] = fn;
   return this;
 }
