@@ -2,7 +2,7 @@
   "name": "json-schema-valid",
   "repo": "ericgj/json-schema-valid",
   "description": "JSON Schema validator",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "keywords": [],
   "dependencies": {
     "ericgj/json-schema-core": "*",
