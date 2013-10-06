@@ -46,14 +46,66 @@ function validateObjectRequired(){
 }
 
 function validateObjectProperties(){
-  return true;
+  var valid = true
+    , count = 0
+    , additional = this.property('additionalProperties')
+    , additionalSchema = this.get('additionalProperties')
+
+  var validatePropContext = function(ctx){
+    count++;
+    valid = ctx.validate() && valid;
+  }
+
+  for (var key in this.instance){
+    
+    count = 0;
+    withPropertyContext.call(this,key,validatePropContext);
+    withPatternPropertyContexts.call(this,key,validatePropContext);
+
+    if (count == 0) {
+      if ('boolean' == type(additional)) {
+        var err = assert(additional, 'Unknown property')
+        if (err) this.error(err);
+        valid = (!err) && valid;
+      }
+      if (additionalSchema){
+        var ctx = this.subcontext('additionalProperties',key)
+        valid = ctx.validate() && valid
+      }
+    }
+  }
+
+  return (valid);
 }
+
 
 function validateObjectDependencies(){
   return true;
 }
 
 
+// private
+
+function withPropertyContext(key,fn){
+  var props = this.get('properties')
+    , prop = props && props.get(key)
+  if (!prop) return;
+  var ctx = this.subcontext(['properties',key].join('/'),key);
+  fn(ctx);
+}
+
+function withPatternPropertyContexts(key,fn){
+  var props = this.get('patternProperties')
+  if (!props) return;
+  var self = this;
+  props.each( function(rx,schema){
+    var matcher = new RegExp(rx);
+    if (matcher.test(key)){
+      var ctx = self.subcontext(['patternProperties',rx].join('/'),key);
+      fn(ctx);
+    }
+  });
+}
 
 // utils
 
