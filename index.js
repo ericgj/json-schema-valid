@@ -60,9 +60,13 @@ var FORMAT_VALIDATORS = {}
 
 /******************************** 
  * Schema plugin
- * adds validate() and resolveLinks() to correlation
+ * - adds validate() and resolveLinks() to correlation
+ * - wraps subschema() to take into account validation from 
+ *   correlation.getPath()
+ *
  * Note that resolveLinks() is used for links() and related methods
  *   when multiple valid schemas apply: cf. json-schema-hyper plugin.
+ *
  */
 module.exports = plugin;
 
@@ -194,7 +198,11 @@ function validateCombinations(instance,ctx,fn){
 }
 
 
-// combinations
+/*************
+ * Combinations 
+ * Note these can probably be refactored but my head hurts thinking about it
+ *
+ */
 
 function validateAllOf(instance,ctx,fn){
   var allof = this.get('allOf')
@@ -254,10 +262,6 @@ function validateNot(instance,ctx){
   var not = this.get('not'); if (!not) return;
   return (!(validate.call(not,instance,ctx)));
 }
-
-
-
-
 
 
 
