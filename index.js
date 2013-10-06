@@ -5,12 +5,13 @@ var validate = require('./validate')
   , each = require('each')
   , type = require('type')
 
+var validateObject = require('./type/object')
+
 /* 
 
 var validateArray = require('./type/array')
   , validateBoolean = require('./type/boolean')
   , validateNumber = require('./type/number')
-  , validateObject = require('./type/object')
   , validateString = require('./type/string')
   , validateAllOf  = require('./type/allof')
   , validateAnyOf  = require('./type/anyof')
@@ -41,6 +42,9 @@ function plugin(target){
   target.addBinding('validate',validateBinding);
   target.addBinding('resolveLinks',resolveLinksBinding);
   target.addBinding('subschema',subschemaBinding);
+
+  // late-bind the validate function with all added types and formats, etc.
+  Context.prototype.validate = validate;  
 }
 
 plugin.addFormat = function(key,fn){
@@ -56,7 +60,7 @@ plugin.addType = function(key,fn){
 function validateBinding(fn){
   if (!this.schema || !this.instance) return;
   var ctx = new Context(this.schema,this.instance);
-  return validate.call(ctx,fn);
+  return ctx.validate(fn);
 }
 
 function resolveLinksBinding(){
