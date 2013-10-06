@@ -33,7 +33,16 @@ function validateObjectMinMax(){
 }
 
 function validateObjectRequired(){
-  return true;
+  var reqs = this.property('required') || []
+    , valid = true
+
+  for (var i=0;i<reqs.length;++i){
+    var req = reqs[i];
+    var err = assert(!!this.getInstancePath(req), "Missing required property")
+    if (err) this.error(err);
+    valid = (!err) && valid;
+  }
+  return (valid);
 }
 
 function validateObjectProperties(){

@@ -26,9 +26,25 @@ Context.prototype.property = function(key){
   return this.schema && this.schema.property(key);
 }
 
+Context.prototype.getInstancePath = function(path){
+  if (!path || 0==path.length) return this;
+  var parts = path.split('/')
+    , prop = parts.shift()
+    , rest = parts.join('/')
+  if ('#' == prop) return getPath.call(this,rest);
+  var branch = this[prop]
+  if (!branch) return;
+  return getPath.call(branch,rest);
+}
+
+Context.prototype.getSchemaPath =
+Context.prototype.getPath = function(path){
+  return this.schema && this.schema.getPath(path);
+}
+
 Context.prototype.subcontext = function(schemaPath,instancePath){
-  var schema = this.schema.getPath(schemaPath)
-    , instance = getPath.call(this.instance,instancePath)
+  var schema = this.getPath(schemaPath)
+    , instance = this.getInstancePath(instancePath)
   if (schema.nodeType !== 'Schema') schema = undefined;
   return new Context(schema,instance,schemaPath);
 }
@@ -50,14 +66,4 @@ function buildError(message){
 // utils
 
 /* this == instance object */
-function getPath(path){
-  if (!path || 0==path.length) return this;
-  var parts = path.split('/')
-    , prop = parts.shift()
-    , rest = parts.join('/')
-  if ('#' == prop) return getPath.call(this,rest);
-  var branch = this[prop]
-  if (!branch) return;
-  return getPath.call(branch,rest);
-}
 
