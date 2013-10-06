@@ -9,8 +9,7 @@
     "component/emitter": "*",
     "component/type": "*",
     "component/indexof": "*",
-    "component/each": "*",
-    "component/find": "*"
+    "component/each": "*"
   },
   "development": {
     "timoxley/assert": "*",
@@ -19,7 +18,9 @@
   "license": "MIT",
   "main": "index.js",
   "scripts": [
-    "index.js"
+    "index.js",
+    "validate.js",
+    "context.js"
   ]
 }
 
