@@ -12,6 +12,49 @@ Schema.use(hyperPlugin);
 ///////////////////////////////////
 
 describe('json-schema-valid', function(){
+  describe('subschema', function(){
+
+    function getCorrelation(schemakey,instancekey){
+      instancekey = instancekey || schemakey;
+      var schema = new Schema().parse(fixtures.subschema.schema[schemakey]);
+      var instance = JSON.parse(JSON.stringify(fixtures.subschema.instance[instancekey]));
+      return schema.bind(instance);
+    }
+
+    it('should get subschema from schema when valid and no combinations', function(){
+     var subject = getCorrelation('none','one');
+     var act = subject.subschema('one');
+     console.log('subschema no combinations: %o', act);
+     var exp = subject.schema.get('properties').get('one');
+     assert(act);
+     assert(exp);
+     assert(act === exp);
+    })
+
+    it('should get subschema from schema and from all allOf schemas, when valid', function(){
+      var subject = getCorrelation('allof','one');
+      var act = subject.subschema('one');
+      console.log('subschema allof: %o', act);
+      assert(act);
+      assert("one: 0" == act.getPath('allOf/0').property('title'));
+      assert("one: 1" == act.getPath('allOf/1').property('title'));
+      assert("one: 2" == act.getPath('allOf/2').property('title'));
+    })
+
+    it('should getPath with allOf schemas, when valid, one schema valid for subpath', function(){
+      var subject = getCorrelation('allof','two');
+      var act = subject.getPath('one/two');
+      console.log('subschema getPath: %o', act);
+      assert(act);
+      var expschema = subject.schema.getPath('allOf/0/properties/one/properties/two');
+      var expinstance = subject.instance.one.two;
+      assert(expschema);
+      assert(expschema === act.schema);
+      assert(expinstance === act.instance);
+    })
+
+  })
+
   describe('links', function(){
 
     function getCorrelation(schemakey,instancekey){
@@ -61,6 +104,48 @@ describe('json-schema-valid', function(){
 
 
 // fixtures
+
+fixtures.subschema = {}
+fixtures.subschema.schema = {}
+fixtures.subschema.instance = {}
+
+fixtures.subschema.schema.none = {
+  properties: {
+    one: {}
+  }
+}
+
+fixtures.subschema.schema.allof = {
+  properties: {
+    one: { title: "one: 0" }
+  },
+  allOf: [
+    {
+      properties: {
+        one: { 
+          title: "one: 1", 
+          properties: {
+            two: {}
+          }
+        }
+      }
+    },
+    {
+      properties: {
+        one: { title: "one: 2" }
+      }
+    }
+  ]
+}
+
+
+fixtures.subschema.instance.one = {
+  one: { }
+}
+
+fixtures.subschema.instance.two = {
+  one: { two: {} }
+}
 
 fixtures.resolvelinks = {};
 fixtures.resolvelinks.schema = {};

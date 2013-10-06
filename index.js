@@ -69,6 +69,7 @@ module.exports = plugin;
 function plugin(target){
   target.addBinding('validate',validateBinding);
   target.addBinding('resolveLinks',resolveLinksBinding);
+  target.addBinding('subschema',subschemaBinding);
 }
 
 plugin.addFormatter = function(key,fn){
@@ -95,6 +96,33 @@ function resolveLinksBinding(){
   if (!valid) return undefined;
   return links.resolve(this.instance);
 }
+
+function subschemaBinding(prop){
+  if (!this.schema || !this.instance) return;
+  var self = this
+    , ret
+  this.validate( function(schemas){
+    ret = buildSubschema.call(self,schemas,prop);
+  });
+  return ret;
+}
+
+function buildSubschema(schemas,prop){
+  var protoSubschema = this.__proto__.subschema
+    , instance = this.instance
+    , found = []
+  each(schemas, function(schema){
+    var corr = schema.bind(instance)
+      , sub = protoSubschema.call(corr,prop)
+    if (sub) found.push(sub);
+  })
+  if (found.length == 1){
+    return (found[0]);
+  } else {
+    return (new Schema.allOf(found));
+  }
+}
+
 
 
 /***************************
