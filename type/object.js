@@ -19,11 +19,17 @@ function validateObjectMinMax(){
     , valid = true
 
   if (min){
-    valid = this.assert(keys.length >= min, "too few properties") && valid;
+    valid = this.assert(keys.length >= min, 
+                        "too few properties",
+                        "minProperties"
+                       ) && valid;
   }
 
   if (max){
-    valid = this.assert(keys.length <= max, "too many properties") && valid;
+    valid = this.assert(keys.length <= max, 
+                        "too many properties",
+                        "maxProperties"
+                       ) && valid;
   }
 
   return (valid);
@@ -34,9 +40,10 @@ function validateObjectRequired(){
     , valid = true
 
   for (var i=0;i<reqs.length;++i){
-    valid = assert(!!this.getInstancePath(reqs[i]), 
-                   "missing required property"
-                  ) && valid;
+    valid = this.assert(!!this.getInstancePath(reqs[i]), 
+                        "missing required property",
+                        "required"
+                       ) && valid;
   }
   return (valid);
 }
@@ -60,7 +67,10 @@ function validateObjectProperties(){
 
     if (count == 0) {
       if ('boolean' == type(additional)) {
-        valid = this.assert(additional, 'unknown property') && valid
+        valid = this.assert(additional, 
+                            'unknown property',
+                            'additional'
+                           ) && valid
       }
       if (additionalSchema){
         var ctx = this.subcontext('additionalProperties',key)

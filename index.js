@@ -50,6 +50,8 @@ function plugin(target){
   plugin.addType(validateString);
   plugin.addType(validateNumeric);
 
+  Context.emitter(plugin._listener);
+
   // late-bind the validate function with all added types and formats, etc.
   Context.prototype.validate = validate;  
 }
@@ -84,9 +86,11 @@ plugin.addType = function(fn){
 
 
 
-function validateBinding(fn){
+function validateBinding(desc,fn){
+  if (type(desc)=='function'){
+    fn = desc; desc = undefined;
+  }
   if (!this.schema || !this.instance) return;
-  Context.emitter(plugin._listener);
   var ctx = new Context(this.schema,this.instance);
   return ctx.validate(fn);
 }

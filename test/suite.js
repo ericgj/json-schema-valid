@@ -12,7 +12,7 @@ Schema.use(validationPlugin);
 Schema.use(hyperPlugin);
 
 validationPlugin.on('error', function(e){
-  console.log('  error: %s', e.message);
+  console.log('  %s: %s , error: %o', e.context, e.message, e);
 });
 
 var suite = window['json-schema-test-suite']
@@ -49,7 +49,8 @@ function genTests(obj){
       console.log(testcase.description + ' : %o , expected: %s', [subject.schema, subject.instance], exp);
 
       it(testcase.description, function(){
-        assert(exp == subject.validate());
+        var desc = obj.description + " :: " + testcase.description;
+        assert(exp == subject.validate(desc));
       })
     })
   })

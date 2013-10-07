@@ -49,8 +49,10 @@ function validateType(){
 
   types = ('array' == type(types) ? types : [types])
   if (indexOf(types,'integer')>=0) types.push('number');
-  var valid = this.assert(indexOf(types,actual)>=0, "type does not match");
-
+  var valid = this.assert(indexOf(types,actual)>=0, 
+                          "type does not match",
+                          "type"
+                         );
   return (valid);
 }
 
@@ -70,7 +72,10 @@ function validateFormat(){
   if (!format) return true;
 
   var formatter = validate.getFormat(format)
-    , valid = this.assert(!!formatter, "unknown format") && 
+    , valid = this.assert(!!formatter, 
+                          "unknown format",
+                          "format"
+                         ) && 
               formatter.call(this); 
   return (valid);
 }
