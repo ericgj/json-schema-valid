@@ -7,6 +7,7 @@ var validate = require('./validate')
 
 var validateObject = require('./type/object')
   , validateString = require('./type/string')
+  , validateNumeric = require('./type/numeric')
 
 /* 
 
@@ -44,8 +45,9 @@ function plugin(target){
   target.addBinding('resolveLinks',resolveLinksBinding);
   target.addBinding('subschema',subschemaBinding);
 
-  plugin.addType('object',validateObject);
-  plugin.addType('string',validateString);
+  plugin.addType(validateObject);
+  plugin.addType(validateString);
+  plugin.addType(validateNumeric);
 
   // late-bind the validate function with all added types and formats, etc.
   Context.prototype.validate = validate;  
@@ -56,8 +58,8 @@ plugin.addFormat = function(key,fn){
   return this;
 }
 
-plugin.addType = function(key,fn){
-  validate.addType(key,fn);
+plugin.addType = function(fn){
+  validate.addType(fn);
   return this;
 }
 

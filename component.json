@@ -22,7 +22,8 @@
     "validate.js",
     "context.js",
     "type/object.js",
-    "type/string.js"
+    "type/string.js",
+    "type/numeric.js"
   ]
 }
 

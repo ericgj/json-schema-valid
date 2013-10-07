@@ -10,6 +10,8 @@ function validate(fn){
 
   valid = validateType.call(this) && valid
 
+  valid = validateTypes.call(this) && valid
+
   valid = validateFormat.call(this) && valid;
 
   valid = validateCombinations.call(this, fn) && valid;
@@ -17,11 +19,11 @@ function validate(fn){
   return (valid);
 }
 
-validate._types = {};
+validate._types = [];
 validate._formats = {};
 
-validate.addType = function(key,fn){
-  validate._types[key] = fn;
+validate.addType = function(fn){
+  validate._types.push(fn);
   return this;
 }
 
@@ -33,19 +35,28 @@ validate.addFormat = function(key,fn){
   return this;
 }
 
-validate.getType = function(key){ return this._types[key]; }
+validate.getTypes = function(key){ return this._types; }
 validate.getFormat = function(key){ return this._formats[key]; }
 
 
 function validateType(){
   var types = this.property('type')
-    , valid = true
-  if (!types) return (valid);
+    , actual = type(this.instance)
+  if (!types) return true;
 
   types = ('array' == type(types) ? types : [types])
+  if (indexOf('integer',types)>=0) types.push('number');
+  var valid = this.assert(indexOf(actual,types)>=0, "type does not match");
+
+  return (valid);
+}
+
+function validateTypes(){
+  var types = validate.getTypes()
+    , valid = true
   for (var i=0;i<types.length;++i){
-    var validator = validate.getType(types[i])
-    if (validator) valid = validator.call(this) && valid;
+    var validator = types[i]
+    valid = validator.call(this) && valid;
   }
 
   return (valid);

@@ -3,10 +3,13 @@
 module.exports = validateObject;
 
 function validateObject(){
-  return  validateObjectMinMax.call(this) &&
-          validateObjectRequired.call(this) &&
-          validateObjectProperties.call(this) &&
-          validateObjectDependencies.call(this);
+  var valid = true
+  if (type(this.instance)!=='object') return (valid);
+  valid = validateObjectMinMax.call(this) && valid;
+  valid = validateObjectRequired.call(this) && valid;
+  valid = validateObjectProperties.call(this) && valid;
+  valid = validateObjectDependencies.call(this) && valid;
+  return (valid);
 }
 
 function validateObjectMinMax(){

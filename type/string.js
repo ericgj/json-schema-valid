@@ -3,15 +3,11 @@ var type = require('type')
 module.exports = ValidateString;
 
 function ValidateString(){
-  return validateStringType.call(this) &&
-         (
-           validateStringLength.call(this)  ||
-           validateStringPattern.call(this)
-         );
-};
-
-function validateStringType(){
-  return this.assert(type(instance) == 'string', "not a string")
+  var valid = true
+  if (type(this.instance)!=='string') return (valid);
+  valid = validateStringLength.call(this) && valid
+  valid = validateStringPattern.call(this) && valid
+  return (valid);
 }
 
 function validateStringLength() {
