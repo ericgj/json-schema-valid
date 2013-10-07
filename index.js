@@ -2,6 +2,7 @@
 
 var validate = require('./validate')
   , Context = require('./context')
+  , Emitter = require('emitter')
   , each = require('each')
   , type = require('type')
 
@@ -53,6 +54,24 @@ function plugin(target){
   Context.prototype.validate = validate;  
 }
 
+plugin._listener = new Emitter();
+
+plugin.on = function(evt,fn){
+  this._listener.on(evt,fn);
+  return this;
+}
+
+plugin.once = function(evt,fn){
+  this._listener.once(evt,fn);
+  return this;
+}
+
+plugin.off = function(evt,fn){
+  if (fn){ this._listener.off(evt,fn); }
+  else   { this._listener.off(evt);    }
+  return this;
+}
+
 plugin.addFormat = function(key,fn){
   validate.addFormat(key,fn);
   return this;
@@ -63,8 +82,11 @@ plugin.addType = function(fn){
   return this;
 }
 
+
+
 function validateBinding(fn){
   if (!this.schema || !this.instance) return;
+  Context.emitter(plugin._listener);
   var ctx = new Context(this.schema,this.instance);
   return ctx.validate(fn);
 }

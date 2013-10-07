@@ -11,6 +11,10 @@ var assert = require('timoxley-assert')
 Schema.use(validationPlugin);
 Schema.use(hyperPlugin);
 
+validationPlugin.on('error', function(e){
+  console.log('  error: %s', e.message);
+});
+
 var suite = window['json-schema-test-suite']
 
 describe('json-schema-valid: suite', function(){
@@ -42,7 +46,7 @@ function genTests(obj){
       var exp = testcase.valid
         , instance = testcase.data
         , subject = schema.bind(instance)
-      console.log(testcase.description + ' : %o', subject);
+      console.log(testcase.description + ' : %o , expected: %s', [subject.schema, subject.instance], exp);
 
       it(testcase.description, function(){
         assert(exp == subject.validate());

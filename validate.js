@@ -7,6 +7,9 @@ module.exports = validate;
 
 function validate(fn){
   var valid = true
+  var combos = function(schemas){
+    if (valid && fn) fn(schemas);
+  }
 
   valid = validateType.call(this) && valid
 
@@ -14,7 +17,7 @@ function validate(fn){
 
   valid = validateFormat.call(this) && valid;
 
-  valid = validateCombinations.call(this, fn) && valid;
+  valid = validateCombinations.call(this, combos) && valid;
 
   return (valid);
 }
@@ -45,8 +48,8 @@ function validateType(){
   if (!types) return true;
 
   types = ('array' == type(types) ? types : [types])
-  if (indexOf('integer',types)>=0) types.push('number');
-  var valid = this.assert(indexOf(actual,types)>=0, "type does not match");
+  if (indexOf(types,'integer')>=0) types.push('number');
+  var valid = this.assert(indexOf(types,actual)>=0, "type does not match");
 
   return (valid);
 }

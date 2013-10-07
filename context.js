@@ -1,6 +1,6 @@
 'use strict';
 
-var Emitter = require('emitter')
+// var Emitter = require('emitter')
 
 module.exports = Context;
 
@@ -11,7 +11,19 @@ function Context(schema,instance,path){
   return this;
 }
 
-Context.prototype = new Emitter();
+Context.emitter = function(emitter){
+  if (arguments.length == 0){
+    return this._emitter;
+  } else {
+    this._emitter = emitter;
+  }
+}
+
+Context.prototype.emitter = function(){
+  return Context.emitter();
+}
+
+// Context.prototype = new Emitter();
 
 Context.prototype.path = function(){
   return this._segments.join('/');
@@ -50,7 +62,8 @@ Context.prototype.assert = function(value, message){
 
 // TODO throw error if some flag is set
 Context.prototype.error = function(message){
-  this.emit('error', buildError.call(this,message));
+  var emitter = this.emitter();
+  if (emitter) emitter.emit('error', buildError.call(this,message));
 }
 
 
@@ -60,7 +73,6 @@ Context.prototype.error = function(message){
 function buildError(message){
   return new Error(message);
 }
-
 
 // utils
 
