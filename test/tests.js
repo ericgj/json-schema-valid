@@ -11,7 +11,7 @@ Schema.use(hyperPlugin);
 
 ///////////////////////////////////
 
-describe('json-schema-valid', function(){
+describe('json-schema-valid: additional tests', function(){
   describe('subschema', function(){
 
     function getCorrelation(schemakey,instancekey){

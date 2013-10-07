@@ -44,9 +44,11 @@ validate.getFormat = function(key){ return this._formats[key]; }
 
 function validateType(fn){
   var instance = this.instance
-    , types = this.property('type') || 'object'
-    , types = ('array' == type(types) ? types : [types])
-    , i = indexOf(type(instance),types)
+    , types = this.property('type')
+  if (!types) return true;
+
+  types = ('array' == type(types) ? types : [types])
+  var i = indexOf(type(instance),types)
 
   var err = assert(i >= 0, "invalid type");
   if (err) this.error(err);

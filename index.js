@@ -43,6 +43,8 @@ function plugin(target){
   target.addBinding('resolveLinks',resolveLinksBinding);
   target.addBinding('subschema',subschemaBinding);
 
+  plugin.addType('object',validateObject);
+
   // late-bind the validate function with all added types and formats, etc.
   Context.prototype.validate = validate;  
 }
