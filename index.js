@@ -6,6 +6,7 @@ var validate = require('./validate')
   , type = require('type')
 
 var validateObject = require('./type/object')
+  , validateString = require('./type/string')
 
 /* 
 
@@ -44,6 +45,7 @@ function plugin(target){
   target.addBinding('subschema',subschemaBinding);
 
   plugin.addType('object',validateObject);
+  plugin.addType('string',validateString);
 
   // late-bind the validate function with all added types and formats, etc.
   Context.prototype.validate = validate;  

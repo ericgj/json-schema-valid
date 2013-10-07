@@ -27,14 +27,7 @@ Context.prototype.property = function(key){
 }
 
 Context.prototype.getInstancePath = function(path){
-  if (!path || 0==path.length) return this;
-  var parts = path.split('/')
-    , prop = parts.shift()
-    , rest = parts.join('/')
-  if ('#' == prop) return getPath.call(this,rest);
-  var branch = this[prop]
-  if (!branch) return;
-  return getPath.call(branch,rest);
+  return getPath.call(this.instance,path);
 }
 
 Context.prototype.getSchemaPath =
@@ -47,6 +40,12 @@ Context.prototype.subcontext = function(schemaPath,instancePath){
     , instance = this.getInstancePath(instancePath)
   if (schema.nodeType !== 'Schema') schema = undefined;
   return new Context(schema,instance,schemaPath);
+}
+
+
+Context.prototype.assert = function(value, message){
+  if (!value) this.error(message);
+  return (value);
 }
 
 // TODO throw error if some flag is set
@@ -66,4 +65,13 @@ function buildError(message){
 // utils
 
 /* this == instance object */
+function getPath(path){
+  if (!path || 0==path.length) return this;
+  var parts = path.split('/')
+    , prop = parts.shift()
+    , rest = parts.join('/')
+  var branch = this[prop]
+  if (!branch) return;
+  return getPath.call(branch,rest);
+}
 

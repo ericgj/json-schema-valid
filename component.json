@@ -19,10 +19,10 @@
   "main": "index.js",
   "scripts": [
     "index.js",
-    "assert.js",
     "validate.js",
     "context.js",
-    "type/object.js"
+    "type/object.js",
+    "type/string.js"
   ]
 }
 

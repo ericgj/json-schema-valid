@@ -2,18 +2,13 @@
 
 var indexOf = require('indexof')
   , type = require('type')
-  , assert = require('./assert')
 
 module.exports = validate;
 
 function validate(fn){
   var valid = true
 
-  var self = this
-  valid = validateType.call(this, function(t){
-    var validator = validate.getType(t)
-    if (validator) valid = (validator.call(self) && valid);
-  }) && valid
+  valid = validateType.call(this) && valid
 
   valid = validateFormat.call(this) && valid;
 
@@ -42,20 +37,18 @@ validate.getType = function(key){ return this._types[key]; }
 validate.getFormat = function(key){ return this._formats[key]; }
 
 
-function validateType(fn){
-  var instance = this.instance
-    , types = this.property('type')
-  if (!types) return true;
+function validateType(){
+  var types = this.property('type')
+    , valid = true
+  if (!types) return (valid);
 
   types = ('array' == type(types) ? types : [types])
-  var i = indexOf(type(instance),types)
+  for (var i=0;i<types.length;++i){
+    var validator = validate.getType(types[i])
+    if (validator) valid = validator.call(this) && valid;
+  }
 
-  var err = assert(i >= 0, "invalid type");
-  if (err) this.error(err);
-
-  if (!err && fn) fn(types[i]);
-
-  return (!err);
+  return (valid);
 }
 
 function validateFormat(){
@@ -63,11 +56,9 @@ function validateFormat(){
   if (!format) return true;
 
   var formatter = validate.getFormat(format)
-    , err = assert(!!formatter, "unknown format")
-  if (err) this.error(err);
-
-  var valid = formatter && formatter.call(this); 
-  return valid;
+    , valid = this.assert(!!formatter, "unknown format") && 
+              formatter.call(this); 
+  return (valid);
 }
 
 function validateCombinations(fn){

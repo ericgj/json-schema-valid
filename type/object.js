@@ -1,7 +1,5 @@
 'use strict';
 
-var assert = require('../assert')
-
 module.exports = validateObject;
 
 function validateObject(){
@@ -18,15 +16,11 @@ function validateObjectMinMax(){
     , valid = true
 
   if (min){
-    var err = assert(keys.length < min, "Too many properties")
-    if (err) this.error(err);
-    valid = (!err) && valid;
+    valid = this.assert(keys.length >= min, "too few properties") && valid;
   }
 
   if (max){
-    var err = assert(keys.length > max, "Too few properties")
-    if (err) this.error(err);
-    valid = (!err) && valid;
+    valid = this.assert(keys.length <= max, "too many properties") && valid;
   }
 
   return (valid);
@@ -37,10 +31,9 @@ function validateObjectRequired(){
     , valid = true
 
   for (var i=0;i<reqs.length;++i){
-    var req = reqs[i];
-    var err = assert(!!this.getInstancePath(req), "Missing required property")
-    if (err) this.error(err);
-    valid = (!err) && valid;
+    valid = assert(!!this.getInstancePath(reqs[i]), 
+                   "missing required property"
+                  ) && valid;
   }
   return (valid);
 }
@@ -64,9 +57,7 @@ function validateObjectProperties(){
 
     if (count == 0) {
       if ('boolean' == type(additional)) {
-        var err = assert(additional, 'Unknown property')
-        if (err) this.error(err);
-        valid = (!err) && valid;
+        valid = this.assert(additional, 'unknown property') && valid
       }
       if (additionalSchema){
         var ctx = this.subcontext('additionalProperties',key)
