@@ -4,7 +4,7 @@ module.exports = validateNumeric;
 
 function validateNumeric(){
   var valid = true
-  if (type(this.instance)!=='number') return (valid);
+  if (type(this.instance())!=='number') return (valid);
   valid = validateMultipleOf.call(this) && valid
   valid = validateMinMax.call(this) && valid
   return (valid);
@@ -13,7 +13,7 @@ function validateNumeric(){
 function validateMultipleOf(){
   var multipleOf = this.property('multipleOf')
   if (!multipleOf) return true;
-  return this.assert(this.instance % multipleOf == 0, 
+  return this.assert(this.instance() % multipleOf == 0, 
                      "not a multiple of",
                      "multipleOf"
                     );

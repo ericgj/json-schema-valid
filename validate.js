@@ -44,7 +44,7 @@ validate.getFormat = function(key){ return this._formats[key]; }
 
 function validateType(){
   var types = this.property('type')
-    , actual = type(this.instance)
+    , actual = type(this.instance())
   if (!types) return true;
 
   types = ('array' == type(types) ? types : [types])
@@ -87,7 +87,7 @@ function validateCombinations(fn){
     , oneOf = this.get('oneOf')
     , not   = this.get('not')
  
-  var valids = [this.schema], valid = true
+  var valids = [this.schema()], valid = true
   var collect = function(schemas){
     valids.push.apply(valids,schemas);
   }

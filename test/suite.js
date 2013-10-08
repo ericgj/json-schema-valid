@@ -12,8 +12,12 @@ Schema.use(validationPlugin);
 Schema.use(hyperPlugin);
 
 validationPlugin.on('error', function(e){
-  console.log('  %s: %s , error: %o', e.context, e.message, e);
+  console.error('  %s , %s , error: %o', e.context, e.message, e);
 });
+
+validationPlugin.on('debug', function(data){
+  console.debug('  %s , %s , debug: %o', data.context, data.message, data);
+})
 
 var suite = window['json-schema-test-suite']
 
@@ -49,8 +53,10 @@ function genTests(obj){
       console.log(testcase.description + ' : %o , expected: %s', [subject.schema, subject.instance], exp);
 
       it(testcase.description, function(){
-        var desc = obj.description + " :: " + testcase.description;
-        assert(exp == subject.validate(desc));
+        // this is a kludge to get around scoping issues
+        schema.addProperty('description', obj.description + " :: " + testcase.description);
+        // var desc = obj.description + " :: " + testcase.description;
+        assert(exp == subject.validate());
       })
     })
   })

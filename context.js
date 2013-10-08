@@ -2,14 +2,13 @@
 
 module.exports = Context;
 
-function Context(schema,instance,path,desc){
+function Context(schema,instance,desc){
   if (!(this instanceof Context)) return new Context(schema,instance,path);
-  this.schema = schema; this.instance = instance;
+  this.primarySchema = schema; this.primaryInstance = instance;
   this.description = desc || schema.property('description');
-  this._segments = (path || '#').split('/');
-  return this;
+  return this.at('#','#');
 }
-
+  
 Context.emitter = function(emitter){
   if (arguments.length == 0){
     return this._emitter;
@@ -22,43 +21,69 @@ Context.prototype.emitter = function(){
   return Context.emitter();
 }
 
-Context.prototype.path = function(){
-  return joinPath.call(this);
+Context.prototype.at = function(schemaPath,instancePath){
+  var segs = schemaPath.split('/')
+  if (segs[0]!=='#') segs.unshift('#');
+  this._schemaSegs = segs;
+  segs = instancePath.split('/')
+  if (segs[0]!=='#') segs.unshift('#');
+  this._instanceSegs = segs;
+  return this;
 }
 
-Context.prototype.segments = function(){
-  return this._segments;
+Context.prototype.subcontext = function(schemaPath,instancePath){
+  return new Context(this.primarySchema,this.primaryInstance,this.description)
+               .at(joinPath(this.schemaPath(),schemaPath),
+                   joinPath(this.instancePath(),instancePath)
+                  );
 }
+
+
+Context.prototype.schemaPath = function(){
+  return this.schemaSegments().join('/');
+}
+
+Context.prototype.schemaSegments = function(){
+  return this._schemaSegs;
+}
+
+Context.prototype.instancePath = function(){
+  return this.instanceSegments().join('/');
+}
+
+Context.prototype.instanceSegments = function(){
+  return this._instanceSegs;
+}
+
+Context.prototype.schema = function(){
+  return this.primarySchema && this.primarySchema.getPath(this.schemaPath());
+}
+
+Context.prototype.instance = function(){
+  return this.primaryInstance && getPath.call(this.primaryInstance,this.instancePath());
+}
+
 
 Context.prototype.condition =
 Context.prototype.get = function(key){
-  return this.schema && this.schema.get(key);
+  var schema = this.schema()
+  return schema && schema.get(key);
 }
 
 Context.prototype.property = function(key){
-  return this.schema && this.schema.property(key);
-}
-
-Context.prototype.getInstancePath = function(path){
-  return getPath.call(this.instance,path);
+  var schema = this.schema()
+  return schema && schema.property(key);
 }
 
 Context.prototype.getSchemaPath =
 Context.prototype.getPath = function(path){
-  return this.schema && this.schema.getPath(path);
+  var schema = this.schem()
+  return schema && schema.getPath(path);
 }
-
-Context.prototype.subcontext = function(schemaPath,instancePath){
-  var schema = this.getPath(schemaPath)
-    , instance = this.getInstancePath(instancePath)
-    , path  = joinPath.call(this,schemaPath)
-  if (schema.nodeType !== 'Schema') schema = undefined;
-  return new Context(schema,instance,path,this.description);
-}
-
 
 Context.prototype.assert = function(value, message, prop){
   if (!value) this.error(message,prop);
+  this.debug(prop + ' assertion ' + (value ? 'passed' : 'failed'),prop);
   return (value);
 }
 
@@ -68,27 +93,52 @@ Context.prototype.error = function(message,prop){
   if (emitter) emitter.emit('error', buildError.call(this,message,prop));
 }
 
+Context.prototype.debug = function(message,prop){
+  var emitter = this.emitter();
+  if (emitter) emitter.emit('debug', buildDebug.call(this,message,prop));
+}
 
 // private
 
-// TODO add context to error
 function buildError(message,prop){
-  var path = joinPath.call(this,prop)
-  message = "<" + JSON.stringify(this.instance) + "> " + message
-  var e = new Error(message);
-  e.context = this.description;
-  e.schemaPath = this.path();
-  if (prop){
-    e.schemaProperty = prop;
-    e.schemaValue = this.property(prop);
-  }
-  e.schemaKey = path;
+  var e = new Error();
+  setContextInfo.call(this,e,message,prop);
   return e;
 }
 
-function joinPath(path){
-  var segments = []; segments.push.apply(segments,this.segments());
-  if (path) segments.push.apply(segments,path.split('/'));
+function buildDebug(message,prop){
+  var data = {};
+  setContextInfo.call(this,data,message,prop);
+  return data;
+}
+
+function setContextInfo(target,message,prop){
+  var skey = joinPath(this.schemaPath(),prop)
+    , expected = this.property(prop)
+    , actual = this.instance()
+  message = [this.instanceSegments().slice(1).join('/'),
+             message, 
+             "(",
+             (prop ? " expected: " + JSON.stringify(expected) + " , " : ""), 
+             "value is " + JSON.stringify(actual),
+             ")"
+            ].join(' ');
+  target.message = message;
+  target.context = this.description;
+  target.schemaPath = this.schemaPath();
+  if (prop){
+    target.schemaProperty = prop;
+    target.schemaValue = expected;
+  }
+  target.schemaKey = skey;
+  target.instancePath = this.instancePath();
+  target.instanceValue = actual;
+}
+
+
+function joinPath(p1,p2){
+  var segments = []; segments.push.apply(segments,p1.split('/'));
+  if (p2) segments.push.apply(segments,p2.split('/'));
   return segments.join('/');
 }
 
@@ -101,6 +151,7 @@ function getPath(path){
   var parts = path.split('/')
     , prop = parts.shift()
     , rest = parts.join('/')
+  if ('#'==prop) return getPath.call(this,rest);
   var branch = this[prop]
   if (!branch) return;
   return getPath.call(branch,rest);

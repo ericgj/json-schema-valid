@@ -4,14 +4,14 @@ module.exports = ValidateString;
 
 function ValidateString(){
   var valid = true
-  if (type(this.instance)!=='string') return (valid);
+  if (type(this.instance())!=='string') return (valid);
   valid = validateStringLength.call(this) && valid
   valid = validateStringPattern.call(this) && valid
   return (valid);
 }
 
 function validateStringLength() {
-  var instance = this.instance
+  var instance = this.instance()
     , min = this.property('minLength')
     , max = this.property('maxLength')
     , valid = true
@@ -36,7 +36,7 @@ function validateStringPattern(){
   var pattern = this.property('pattern')
   if (!pattern) return true;
   pattern = new RegExp(pattern);
-  return this.assert(pattern.test(this.instance), 
+  return this.assert(pattern.test(this.instance()), 
                      "did not match pattern",
                      "pattern"
                     );

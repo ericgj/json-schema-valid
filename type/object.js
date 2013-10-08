@@ -4,7 +4,7 @@ module.exports = validateObject;
 
 function validateObject(){
   var valid = true
-  if (type(this.instance)!=='object') return (valid);
+  if (type(this.instance())!=='object') return (valid);
   valid = validateObjectMinMax.call(this) && valid;
   valid = validateObjectRequired.call(this) && valid;
   valid = validateObjectProperties.call(this) && valid;
@@ -15,7 +15,7 @@ function validateObject(){
 function validateObjectMinMax(){
   var min = this.property('minProperties')
     , max = this.property('maxProperties')
-    , keys = objectKeys(this.instance)
+    , keys = objectKeys(this.instance())
     , valid = true
 
   if (min){
@@ -59,7 +59,7 @@ function validateObjectProperties(){
     valid = ctx.validate() && valid;
   }
 
-  for (var key in this.instance){
+  for (var key in this.instance()){
     
     count = 0;
     withPropertyContext.call(this,key,validatePropContext);
