@@ -22,11 +22,11 @@ function validate(fn){
   return (valid);
 }
 
-validate._types = [];
+validate._types = {};
 validate._formats = {};
 
-validate.addType = function(fn){
-  validate._types.push(fn);
+validate.addType = function(key,fn){
+  validate._types[key] = fn;
   return this;
 }
 
@@ -38,7 +38,7 @@ validate.addFormat = function(key,fn){
   return this;
 }
 
-validate.getTypes = function(key){ return this._types; }
+validate.getTypes = function(){ return this._types; }
 validate.getFormat = function(key){ return this._formats[key]; }
 
 
@@ -59,8 +59,8 @@ function validateType(){
 function validateTypes(){
   var types = validate.getTypes()
     , valid = true
-  for (var i=0;i<types.length;++i){
-    var validator = types[i]
+  for (var k in types){
+    var validator = types[k]
     valid = validator.call(this) && valid;
   }
 

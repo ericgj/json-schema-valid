@@ -46,9 +46,9 @@ function plugin(target){
   target.addBinding('resolveLinks',resolveLinksBinding);
   target.addBinding('subschema',subschemaBinding);
 
-  plugin.addType(validateObject);
-  plugin.addType(validateString);
-  plugin.addType(validateNumeric);
+  plugin.addType('object',validateObject);
+  plugin.addType('string',validateString);
+  plugin.addType('numeric',validateNumeric);
 
   Context.emitter(plugin._listener);
 
@@ -79,8 +79,8 @@ plugin.addFormat = function(key,fn){
   return this;
 }
 
-plugin.addType = function(fn){
-  validate.addType(fn);
+plugin.addType = function(key,fn){
+  validate.addType(key,fn);
   return this;
 }
 

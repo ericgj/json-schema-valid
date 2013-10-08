@@ -56,11 +56,13 @@ Context.prototype.instanceSegments = function(){
 }
 
 Context.prototype.schema = function(){
-  return this.primarySchema && this.primarySchema.getPath(this.schemaPath());
+  return this.primarySchema && 
+    this.primarySchema.getPath(this.schemaPath());
 }
 
 Context.prototype.instance = function(){
-  return this.primaryInstance && getPath.call(this.primaryInstance,this.instancePath());
+  return this.primaryInstance && 
+    getPath.call(this.primaryInstance,this.instancePath());
 }
 
 
@@ -77,7 +79,7 @@ Context.prototype.property = function(key){
 
 Context.prototype.getSchemaPath =
 Context.prototype.getPath = function(path){
-  var schema = this.schem()
+  var schema = this.schema()
   return schema && schema.getPath(path);
 }
 
