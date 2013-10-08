@@ -1,5 +1,7 @@
 'use strict';
 
+var type = require('type')
+
 module.exports = validateObject;
 
 function validateObject(){

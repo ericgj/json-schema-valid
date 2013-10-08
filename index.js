@@ -7,6 +7,7 @@ var validate = require('./validate')
   , type = require('type')
 
 var validateObject = require('./type/object')
+  , validateArray = require('./type/array')
   , validateString = require('./type/string')
   , validateNumeric = require('./type/numeric')
 
@@ -47,6 +48,7 @@ function plugin(target){
   target.addBinding('subschema',subschemaBinding);
 
   plugin.addType('object',validateObject);
+  plugin.addType('array',validateArray);
   plugin.addType('string',validateString);
   plugin.addType('numeric',validateNumeric);
 
