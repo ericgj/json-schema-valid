@@ -89,7 +89,7 @@
   of an http client library. See for example [json-schema-agent][agent], which
   provides both correlation (via HTTP headers) and schema dereferencing. The
   underlying Schema data structure does provide an interface for manipulating
-  references, so it is possible to roll your own dereferencing.
+  references, so it is also possible to roll your own dereferencing.
 
   My view is that dereferencing necessarily involves external resources
   (the HTTP stack) and thus should be cleanly separated from validation.
@@ -99,6 +99,7 @@
   - add common format validators
   - make error data compatible with tv4 errors
   - consider emitting schema-level errors or 'error trees'
+  - non-plugin interface to validate raw schema and instance
   - more complete walk-through of how to use with json-schema-hyper,
     json-schema-agent, etc.
   - bower and npm installation
