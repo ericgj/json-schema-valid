@@ -25,16 +25,22 @@ describe('json-schema-valid: suite', function(){
 
   // each(suite, function(tests){
   for (var key in suite){
-    var tests = suite[key]
-    tests = type(tests) == 'array' ? tests : [tests]
+    
+    describe(key, function(){
 
-    // each(tests, function(test){
-    for (var j=0;j<tests.length;++j){
-      var test = tests[j]
-      genTests(test);
-    }
+      var tests = suite[key]
+      tests = type(tests) == 'array' ? tests : [tests]
+
+      // each(tests, function(test){
+      for (var j=0;j<tests.length;++j){
+        var test = tests[j]
+        genTests(test);
+      }
+
+    })
   }
 
+  
 })
 
 

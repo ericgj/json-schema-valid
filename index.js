@@ -92,7 +92,7 @@ function validateBinding(desc,fn){
   if (type(desc)=='function'){
     fn = desc; desc = undefined;
   }
-  if (!this.schema || !this.instance) return;
+  if (!this.schema) return;
   var ctx = new Context(this.schema,this.instance);
   return ctx.validate(fn);
 }

@@ -139,6 +139,8 @@ function setContextInfo(target,message,prop){
 
 
 function joinPath(p1,p2){
+  p1 = (p1 === undefined ? '' : p1).toString();
+  p2 = (p2 === undefined ? '' : p2).toString();
   var segments = []; segments.push.apply(segments,p1.split('/'));
   if (p2) segments.push.apply(segments,p2.split('/'));
   return segments.join('/');

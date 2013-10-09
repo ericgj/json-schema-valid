@@ -44,12 +44,14 @@ validate.getFormat = function(key){ return this._formats[key]; }
 
 function validateType(){
   var types = this.property('type')
-    , actual = type(this.instance())
+    , instance = this.instance()
+    , actual = type(instance)
+    , isinteger = actual == 'number' && (instance==(instance|0))
   if (!types) return true;
 
   types = ('array' == type(types) ? types : [types])
-  if (indexOf(types,'integer')>=0) types.push('number');
-  var valid = this.assert(indexOf(types,actual)>=0, 
+  var valid = this.assert((indexOf(types,actual)>=0) || 
+                            (isinteger && indexOf(types,'integer')>=0), 
                           "type does not match",
                           "type"
                          );

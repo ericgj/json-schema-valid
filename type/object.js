@@ -1,6 +1,7 @@
 'use strict';
 
 var type = require('type')
+  , has = hasOwnProperty
 
 module.exports = validateObject;
 
@@ -39,10 +40,11 @@ function validateObjectMinMax(){
 
 function validateObjectRequired(){
   var reqs = this.property('required') || []
+    , instance = this.instance()
     , valid = true
 
   for (var i=0;i<reqs.length;++i){
-    valid = this.assert(!!this.getInstancePath(reqs[i]), 
+    valid = this.assert(!!has.call(instance,reqs[i]), 
                         "missing required property",
                         "required"
                        ) && valid;
