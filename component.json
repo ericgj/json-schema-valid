@@ -21,10 +21,12 @@
     "index.js",
     "validate.js",
     "context.js",
+    "deepequal.js",
     "type/object.js",
     "type/array.js",
     "type/string.js",
-    "type/numeric.js"
+    "type/numeric.js",
+    "type/enum.js"
   ]
 }
 

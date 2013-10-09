@@ -10,23 +10,13 @@ var validateObject = require('./type/object')
   , validateArray = require('./type/array')
   , validateString = require('./type/string')
   , validateNumeric = require('./type/numeric')
+  , validateEnum = require('./type/enum')
 
 /* 
-
-var validateArray = require('./type/array')
-  , validateBoolean = require('./type/boolean')
-  , validateNumber = require('./type/number')
-  , validateString = require('./type/string')
-  , validateAllOf  = require('./type/allof')
-  , validateAnyOf  = require('./type/anyof')
-  , validateOneOf  = require('./type/oneof')
-  , validateNot    = require('./type/not')
-
 var formatDate = require('./format/date')
   , formatTime = require('./format/time')
   , formatUTC  = require('./format/utc')
   , formatRegex = require('./format/regex')
-
 */
 
 
@@ -51,6 +41,7 @@ function plugin(target){
   plugin.addType('array',validateArray);
   plugin.addType('string',validateString);
   plugin.addType('numeric',validateNumeric);
+  plugin.addType('enum',validateEnum);
 
   Context.emitter(plugin._listener);
 
