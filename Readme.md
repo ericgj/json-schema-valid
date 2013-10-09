@@ -82,6 +82,17 @@
 
   2. Browse the file `test/index.html`. Tests are run via in-browser mocha.
 
+## A note on dereferencing
+
+  Dereferencing schemas is _not_ implemented here. It is assumed that schemas
+  with JSON references (`$ref`) will have already been dereferenced, making use
+  of an http client library. See for example [json-schema-agent][agent], which
+  provides both correlation (via HTTP headers) and schema dereferencing. The
+  underlying Schema data structure does provide an interface for manipulating
+  references, so it is possible to roll your own dereferencing.
+
+  My view is that dereferencing necessarily involves external resources
+  (the HTTP stack) and thus should be cleanly separated from validation.
 
 ## TODO
 
@@ -100,4 +111,5 @@
 [component]: https://github.com/component/component
 [jsonschema]: http://json-schema.org
 [hyper]: https://github.com/ericgj/json-schema-hyper
+[agent]: https://github.com/ericgj/json-schema-agent
 
