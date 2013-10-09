@@ -94,7 +94,7 @@ function resolveLinksBinding(){
     links = mergeLinks(schemas);
   })
   if (!valid) return undefined;
-  return links.resolve(this.instance);
+  return links && links.resolve(this.instance);
 }
 
 function subschemaBinding(prop){
