@@ -7,6 +7,15 @@
       h1 {
         font-size: 14px;
       }
+      #mocha .suite .suite > h1 {
+        margin-top: 0.5em;
+        border-bottom: 1px dotted red;
+      }
+
+      #mocha .suite .suite .suite > h1 {
+        margin-top: 0em;
+        border-bottom: none;
+      }
     </style>
   </head>
   <body>
@@ -14,9 +23,15 @@
     <script src="../build/build.js"></script>
     <script src="mocha.js"></script>
     <script>mocha.setup('bdd')</script>
+
     <script>window['json-schema-test-suite'] = {};</script>
     <script src="./suite/additionalItems.js"></script>
     <script src="./suite/additionalProperties.js"></script>
+    <script src="./suite/allOf.js"></script>
+    <script src="./suite/anyOf.js"></script>
+<!--    <script src="./suite/definitions.js"></script>  -->
+    <script src="./suite/dependencies.js"></script>
+<!--    <script src="./suite/enum.js"></script>  -->
     <script src="./suite/items.js"></script>
     <script src="./suite/maximum.js"></script>
     <script src="./suite/maxItems.js"></script>
@@ -27,11 +42,18 @@
     <script src="./suite/minLength.js"></script>
     <script src="./suite/minProperties.js"></script>
     <script src="./suite/multipleOf.js"></script>
+    <script src="./suite/not.js"></script>
+    <script src="./suite/oneOf.js"></script>
+<!--    <script src="./suite/pattern.js"></script>    -->
     <script src="./suite/patternProperties.js"></script>
     <script src="./suite/properties.js"></script>
+<!-- dereferencing not tested here                    -->
+<!--    <script src="./suite/ref.js"></script>        -->
+<!--    <script src="./suite/refRemote.js"></script>  -->
     <script src="./suite/required.js"></script>
     <script src="./suite/type.js"></script>
     <script src="./suite/uniqueitems.js"></script>
+
     <script src="suite.js"></script>
     <script src="tests.js"></script>
     <script>
