@@ -125,7 +125,7 @@ function validateAnyOf(fn){
 
 function validateOneOf(fn){
   var validfn = function(ctx,valid,collect){ 
-    return (validate.call(ctx,collect) && !valid);
+    return (validate.call(ctx,collect) ? !valid : valid);
   }
   return validateCombination.call(this,'oneOf',false,validfn,fn);
 }

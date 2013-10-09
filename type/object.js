@@ -88,9 +88,29 @@ function validateObjectProperties(){
 
 
 function validateObjectDependencies(){
-  return true;
+  var deps = this.get('dependencies')
+    , instance = this.instance()
+    , valid = true
+  if (!deps) return (valid);
+  var self = this
+  deps.each( function(key,dep){
+    if (!has.call(instance,key)) return;
+    if (type(dep)=='array'){
+      var missing = []
+      for (var i=0;i<dep.length;++i){
+        if (!has.call(instance,dep[i])) missing.push(dep[i]);
+      }
+      valid = self.assert(missing.length == 0,
+                          "has missing dependencies for " + key + ": " + JSON.stringify(missing),
+                          ["dependencies",key].join('/')
+                         ) && valid;
+    } else if (dep.nodeType == 'Schema'){
+      var ctx = self.subcontext(['dependencies',key].join('/'),'')
+      valid = ctx.validate() && valid;
+    }
+  })
+  return (valid);
 }
-
 
 // private
 

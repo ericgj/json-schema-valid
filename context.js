@@ -1,5 +1,7 @@
 'use strict';
 
+var has = hasOwnProperty
+
 module.exports = Context;
 
 function Context(schema,instance,desc){
@@ -151,13 +153,14 @@ function joinPath(p1,p2){
 
 /* this == instance object */
 function getPath(path){
-  if (!path || 0==path.length) return this;
+  path = (path === undefined ? '' : path).toString();
+  if (0==path.length) return this;
   var parts = path.split('/')
     , prop = parts.shift()
     , rest = parts.join('/')
   if ('#'==prop) return getPath.call(this,rest);
+  if (!has.call(this,prop)) return;
   var branch = this[prop]
-  if (!branch) return;
   return getPath.call(branch,rest);
 }
 
