@@ -85,7 +85,7 @@
 
 ### Validator.addType( key:String, validator:Function )
 
-  Add custom validation function. See `types/*.js` for examples of how
+  Add custom validation function. See `type/*.js` for examples of how
   to write validation functions.
 
 ### Validator.addFormat( format:String, validator:Function|Regexp )
