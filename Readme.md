@@ -16,7 +16,7 @@
   binding_.
 
   In either case, the `validate()` function returns boolean, and an
-  [Emitter][emitter] is used for error handling.
+  [Emitter][emitter] is used for error handling (optional).
 
   __Simple function__:
   
