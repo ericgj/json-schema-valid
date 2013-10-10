@@ -15,7 +15,7 @@
   There are two basic modes: as a _simple function_, and as a _Correlation
   binding_.
 
-  In either case, the validate() function returns boolean, and an
+  In either case, the `validate()` function returns boolean, and an
   [Emitter][emitter] is used for error handling.
 
   __Simple function__:
@@ -71,7 +71,7 @@
 
 ## API
 
-### `Validator.prototype.validate(` <br> `schema:Schema, instance:Object,` <br> `[desc:String], [callback:Function] )`
+### Validator.prototype.validate( schema:Schema, instance:Object, [desc:String], [callback:Function] )
 
   Validate given instance against given schema.
   Takes optional description string (for error handling) and/or
@@ -79,32 +79,32 @@
   the root-level schema plus any schemas valid through combination
   conditions). Callback is only run if validation succeeds (valid).
 
-### `Validator.prototype.validateRaw(` <br> `schema:Object, instance:Object,` <br> `schema:Object, instance:Object,`
+### Validator.prototype.validate( schema:Object, instance:Object, [desc:String], [callback:Function] )
 
   Validate given instance against given raw schema (parsing schema first).
 
-### `Validator.addType( key:String, validator:Function )`
+### Validator.addType( key:String, validator:Function )
 
   Add custom validation function. See `types/*.js` for examples of how
   to write validation functions.
 
-### `Validator.addFormat( format:String, validator:Function|Regexp )`
+### Validator.addFormat( format:String, validator:Function|Regexp )
 
   Add custom format validation function or regular expression to match.
   Note specifying a regular expression here is essentially like having
   named schema `pattern` properties.
 
-### `Validator.emitter( )`
+### Validator.emitter()
 
   Returns a (singleton) Emitter instance, used by default when a 
   validator is not initialized with an external emitter.
  
 
-### `Correlation#validate( [desc:String], [callback:Function] )`
+### Correlation#validate( [desc:String], [callback:Function] )
 
   Validate correlation instance against correlation schema. 
 
-### `Correlation#resolveLinks()`
+### Correlation#resolveLinks()
 
   Validate, and return links merged from all valid schemas, if valid.
   
@@ -115,7 +115,7 @@
 
   See `test/tests.js` for usage examples.
 
-### `Correlation#subschema( property:String )`
+### Correlation#subschema( property:String )
 
   Validate, and get the subschema describing the given instance property.
   If multiple subschemas are valid, the subschema is normalized as a 
