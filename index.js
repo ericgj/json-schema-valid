@@ -33,24 +33,6 @@ validate.addType('enum',validateEnum);
 Context.prototype.validate = validate;
 
 
-
-/*  WHAT WE'RE WORKING TOWARDS - external emitter
-
-  emitter.on('error', fn)
-
-  var validator = new Validator(emitter)
-  validator.validate(schema,instance)
-  
-
-  Schema.use(Validator);
-  emitter = Validator.emitter()
-  emitter.on('error', fn)
-  
-  var corr = schema.bind(instance);
-  corr.validate(fn);
-
-*/
-
 module.exports = Validator;
 
 function Validator(emitter){
@@ -158,7 +140,6 @@ function buildSubschema(schemas,prop){
     return (new Schema.allOf(found));
   }
 }
-
 
 
 

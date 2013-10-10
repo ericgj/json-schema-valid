@@ -152,7 +152,6 @@
   - add common format validators
   - make error data compatible with tv4 errors
   - consider emitting schema-level errors or 'error trees'
-  - non-plugin interface to validate raw schema and instance
   - more complete walk-through of how to use with json-schema-hyper,
     json-schema-agent, etc.
   - bower and npm installation
