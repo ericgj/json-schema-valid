@@ -79,7 +79,7 @@
   the root-level schema plus any schemas valid through combination
   conditions). Callback is only run if validation succeeds (valid).
 
-### Validator.prototype.validate( schema:Object, instance:Object, [desc:String], [callback:Function] )
+### Validator.prototype.validateRaw( schema:Object, instance:Object, [desc:String], [callback:Function] )
 
   Validate given instance against given raw schema (parsing schema first).
 
