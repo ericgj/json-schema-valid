@@ -40,6 +40,9 @@
   // resolving valid combination conditions (allOf, anyOf, oneOf)
   var subschema = correlation.subschema('foo');
 
+  // get resolved links, including for valid combination conditions
+  var links = correlation.links();
+
 ```
 
 ## API
