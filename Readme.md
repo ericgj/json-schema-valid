@@ -10,50 +10,99 @@
 
     $ component install ericgj/json-schema-valid
 
-## Example
+## Examples
+
+  There are two basic modes: as a _simple function_, and as a _Correlation
+  binding_.
+
+  In either case, the validate() function returns boolean, and an
+  [Emitter][emitter] is used for error handling.
+
+  __Simple function__:
+  
+```javascript
+  var Validator = require('json-schema-core')
+    , Emitter = require('emitter')
+
+  // error handling via external emitter
+  var emitter = new Emitter();
+  emitter.on('error', function(e){
+    console.error('Error: %o', e);
+  })
+
+  var validator = new Validator(emitter)
+
+  // if schema has already been parsed
+  var valid = validator.validate(schema,instance);
+  
+  // if raw schema object
+  var valid = validator.validateRaw(rawSchema,instance);
+  
+```
+
+  __Correlation binding__:
 
 ```javascript
 
   var core = require('json-schema-core')
     , Schema = core.Schema
     , plugin = require('json-schema-valid')
-
-  // validation is implemented as a plugin to Schema
+   
+  // attach plugin to Schema 
   Schema.use(plugin);
 
-  // error handling via emitter
-  plugin.on('error', function(e){
+  // error handling via 'default' emitter
+  var emitter = plugin.emitter();
+  emitter.on('error', function(e){
     console.error('Error: %o', e);
   })
 
-  // add format validators
-  plugin.addFormat('date', myDateFormatValidator);
-
-  // bind schema to instance (correlation)
-  var schema = new Schema().parse(rawSchema)
-  var correlation = schema.bind(instance);
-
-  // validate() returns boolean, emitting errors
+  // once you have a correlation, you can call validate() on it
   var valid = correlation.validate();
 
-  // get subschema for instance property
+  // subschema for given instance property
   // resolving valid combination conditions (allOf, anyOf, oneOf)
   var subschema = correlation.subschema('foo');
 
-  // get resolved links, including for valid combination conditions
+  // resolved URI-template links, including for valid combination conditions
   var links = correlation.links();
 
 ```
 
 ## API
 
-### `Correlation#validate( [desc:String], [callback:Function] )`
+### `Validator.prototype.validate(` <br> `schema:Schema, instance:Object,` <br> `[desc:String], [callback:Function] )`
 
-  Validate correlation instance against correlation schema. 
+  Validate given instance against given schema.
   Takes optional description string (for error handling) and/or
   callback function. Callback receives array of valid schemas (i.e.,
   the root-level schema plus any schemas valid through combination
   conditions). Callback is only run if validation succeeds (valid).
+
+### `Validator.prototype.validateRaw(` <br> `schema:Object, instance:Object,` <br> `schema:Object, instance:Object,`
+
+  Validate given instance against given raw schema (parsing schema first).
+
+### `Validator.addType( key:String, validator:Function )`
+
+  Add custom validation function. See `types/*.js` for examples of how
+  to write validation functions.
+
+### `Validator.addFormat( format:String, validator:Function|Regexp )`
+
+  Add custom format validation function or regular expression to match.
+  Note specifying a regular expression here is essentially like having
+  named schema `pattern` properties.
+
+### `Validator.emitter( )`
+
+  Returns a (singleton) Emitter instance, used by default when a 
+  validator is not initialized with an external emitter.
+ 
+
+### `Correlation#validate( [desc:String], [callback:Function] )`
+
+  Validate correlation instance against correlation schema. 
 
 ### `Correlation#resolveLinks()`
 
@@ -78,6 +127,7 @@
 
   See `test/tests.js` for usage examples. 
 
+ 
 ## Running tests
 
   1. Run `make` to generate JSON Schema test suite files and build the 
@@ -116,4 +166,5 @@
 [jsonschema]: http://json-schema.org
 [hyper]: https://github.com/ericgj/json-schema-hyper
 [agent]: https://github.com/ericgj/json-schema-agent
+[emitter]: https://github.com/component/emitter
 

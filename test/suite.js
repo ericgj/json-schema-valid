@@ -11,11 +11,13 @@ var assert = require('timoxley-assert')
 Schema.use(validationPlugin);
 Schema.use(hyperPlugin);
 
-validationPlugin.on('error', function(e){
+var listener = validationPlugin.emitter();
+
+listener.on('error', function(e){
   console.error('  %s , %s , error: %o', e.context, e.message, e);
 });
 
-validationPlugin.on('debug', function(data){
+listener.on('debug', function(data){
   console.debug('  %s , %s , debug: %o', data.context, data.message, data);
 })
 

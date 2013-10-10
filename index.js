@@ -19,6 +19,89 @@ var formatDate = require('./format/date')
   , formatRegex = require('./format/regex')
 */
 
+// default validate() configuration
+
+validate.addType('object',validateObject);
+validate.addType('array',validateArray);
+validate.addType('string',validateString);
+validate.addType('numeric',validateNumeric);
+validate.addType('enum',validateEnum);
+
+// late-bind validate to Context.prototype here
+// to include all custom type/format functions
+
+Context.prototype.validate = validate;
+
+
+
+/*  WHAT WE'RE WORKING TOWARDS - external emitter
+
+  emitter.on('error', fn)
+
+  var validator = new Validator(emitter)
+  validator.validate(schema,instance)
+  
+
+  Schema.use(Validator);
+  emitter = Validator.emitter()
+  emitter.on('error', fn)
+  
+  var corr = schema.bind(instance);
+  corr.validate(fn);
+
+*/
+
+module.exports = Validator;
+
+function Validator(emitter){
+
+  if (type(emitter) == 'function'){  // plugin, emitter == Schema
+    plugin(emitter);
+
+  } else {   // standalone validator
+    if (!(this instanceof Validator)) return new Validator(emitter);
+    this.emitter(emitter || Validator.emitter());
+    return this;
+
+  }
+}
+
+Validator.addFormat = function(key,fn){
+  validate.addFormat(key,fn);
+  return this;
+}
+
+Validator.addType = function(key,fn){
+  validate.addType(key,fn);
+  return this;
+}
+
+/* default emitter */
+Validator.emitter = function(){
+  this._emitter = this._emitter || new Emitter();
+  return this._emitter;
+}
+
+Validator.prototype.emitter = function(emitter){ 
+  if (arguments.length == 0){ return this._emitter;    }
+  else                      { this._emitter = emitter; }
+}
+
+Validator.prototype.validate = function(schema,instance,desc,fn){
+  if (type(desc)=='function'){
+    fn = desc; desc = undefined;
+  }
+  if (!schema) return;
+  var ctx = new Context(schema,instance,desc);
+  Context.emitter(this.emitter());
+  return ctx.validate(fn);
+}
+
+Validator.prototype.validateRaw = function(schema,instance,desc,fn){
+  schema = new Schema().parse(schema);
+  return this.validate(schema,instance,desc,fn);
+}
+
 
 /******************************** 
  * Schema plugin
@@ -30,62 +113,15 @@ var formatDate = require('./format/date')
  *   when multiple valid schemas apply: cf. json-schema-hyper plugin.
  *
  */
-module.exports = plugin;
-
 function plugin(target){
   target.addBinding('validate',validateBinding);
   target.addBinding('resolveLinks',resolveLinksBinding);
   target.addBinding('subschema',subschemaBinding);
-
-  plugin.addType('object',validateObject);
-  plugin.addType('array',validateArray);
-  plugin.addType('string',validateString);
-  plugin.addType('numeric',validateNumeric);
-  plugin.addType('enum',validateEnum);
-
-  Context.emitter(plugin._listener);
-
-  // late-bind the validate function with all added types and formats, etc.
-  Context.prototype.validate = validate;  
 }
-
-plugin._listener = new Emitter();
-
-plugin.on = function(evt,fn){
-  this._listener.on(evt,fn);
-  return this;
-}
-
-plugin.once = function(evt,fn){
-  this._listener.once(evt,fn);
-  return this;
-}
-
-plugin.off = function(evt,fn){
-  if (fn){ this._listener.off(evt,fn); }
-  else   { this._listener.off(evt);    }
-  return this;
-}
-
-plugin.addFormat = function(key,fn){
-  validate.addFormat(key,fn);
-  return this;
-}
-
-plugin.addType = function(key,fn){
-  validate.addType(key,fn);
-  return this;
-}
-
-
 
 function validateBinding(desc,fn){
-  if (type(desc)=='function'){
-    fn = desc; desc = undefined;
-  }
-  if (!this.schema) return;
-  var ctx = new Context(this.schema,this.instance);
-  return ctx.validate(fn);
+  var validator = new Validator();
+  return validator.validate(this.schema,this.instance,desc,fn);
 }
 
 function resolveLinksBinding(){

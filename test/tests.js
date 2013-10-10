@@ -1,10 +1,13 @@
+'use strict';
+
 var assert = require('timoxley-assert')
+  , Emitter = require('emitter')
   , core = require('json-schema-core')
   , validationPlugin = require('json-schema-valid')
   , hyperPlugin = require('json-schema-hyper')
   , Schema = core.Schema
 
-fixtures = {};
+var fixtures = {};
 
 Schema.use(validationPlugin);
 Schema.use(hyperPlugin);
@@ -12,6 +15,42 @@ Schema.use(hyperPlugin);
 ///////////////////////////////////
 
 describe('json-schema-valid: additional tests', function(){
+  describe('simple usage', function(){
+
+    it('should validate and handle errors', function(){
+      var schema = new Schema().parse({ minItems: 3 })
+        , instance = [1,2]
+        , listener = new Emitter()
+        , errcount = 0
+        , debugcount = 0
+      
+      listener.on('error', function(e){ errcount++; });
+      listener.on('debug', function(e){ debugcount++; });
+
+      var act = validationPlugin(listener).validate(schema,instance); 
+      assert(act === false);
+      assert(errcount == 1);
+      assert(debugcount > 0);
+    })
+
+    it('should validate from raw schema', function(){
+      var schema = { minItems: 3 }
+        , instance = [1,2]
+        , listener = new Emitter()
+        , errcount = 0
+        , debugcount = 0
+      
+      listener.on('error', function(e){ errcount++; });
+      listener.on('debug', function(e){ debugcount++; });
+
+      var act = validationPlugin(listener).validateRaw(schema,instance); 
+      assert(act === false);
+      assert(errcount == 1);
+      assert(debugcount > 0);
+    })
+
+  })
+
   describe('subschema', function(){
 
     function getCorrelation(schemakey,instancekey){
