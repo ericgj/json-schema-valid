@@ -21,7 +21,7 @@
   __Simple function__:
   
 ```javascript
-  var Validator = require('json-schema-core')
+  var Validator = require('json-schema-valid')
     , Emitter = require('emitter')
 
   // error handling via external emitter
