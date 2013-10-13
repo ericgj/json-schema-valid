@@ -1,6 +1,8 @@
 
 # json-schema-valid
 
+  **Please note this library is not ready for production use.**
+
   A modular javascript [JSON Schema][jsonschema] validator
   
 
