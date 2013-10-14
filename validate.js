@@ -71,14 +71,13 @@ function validateTypes(){
 
 function validateFormat(){
   var format = this.property('format')
-  if (!format) return true;
+    , valid = true
+  if (!format) return (valid);
 
   var formatter = validate.getFormat(format)
-    , valid = this.assert(!!formatter, 
-                          "unknown format",
-                          "format"
-                         ) && 
-              formatter.call(this); 
+  if (!formatter) return (valid);
+  
+  valid = formatter.call(this);
   return (valid);
 }
 
