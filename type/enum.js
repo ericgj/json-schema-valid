@@ -1,5 +1,6 @@
 'use strict';
 var deepEqual = require('../deepequal')
+  , type = require('type')
 
 module.exports = validateEnum;
 
