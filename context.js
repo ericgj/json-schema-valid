@@ -30,6 +30,13 @@ Context.prototype.at = function(schemaPath,instancePath){
   segs = instancePath.split('/')
   if (segs[0]!=='#') segs.unshift('#');
   this._instanceSegs = segs;
+  this.debug("subcontext: schemaPath: " + this.schemaPath() + 
+               " , instancePath: " + this.instancePath(),
+             { schema: this.schema(), 
+               instance: this.instance(), 
+               context: this.description 
+             }
+            );
   return this;
 }
 
@@ -87,8 +94,14 @@ Context.prototype.getPath = function(path){
 
 Context.prototype.assert = function(value, message, prop){
   if (!value) this.error(message,prop);
-  this.debug(prop + ' assertion ' + (value ? 'passed' : 'failed'),prop);
+  this.debugAssert(prop + ' assertion ' + (value ? 'passed' : 'failed'),prop);
   return (value);
+}
+
+Context.prototype.debug = function(message,obj){
+  var emitter = this.emitter();
+  obj = obj || {}; obj.message = message;
+  if (emitter) emitter.emit('debug', obj);
 }
 
 // TODO throw error if some flag is set
@@ -97,7 +110,7 @@ Context.prototype.error = function(message,prop){
   if (emitter) emitter.emit('error', buildError.call(this,message,prop));
 }
 
-Context.prototype.debug = function(message,prop){
+Context.prototype.debugAssert = function(message,prop){
   var emitter = this.emitter();
   if (emitter) emitter.emit('debug', buildDebug.call(this,message,prop));
 }
