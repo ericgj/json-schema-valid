@@ -30,21 +30,22 @@ Context.prototype.at = function(schemaPath,instancePath){
   segs = instancePath.split('/')
   if (segs[0]!=='#') segs.unshift('#');
   this._instanceSegs = segs;
-  this.debug("subcontext: schemaPath: " + this.schemaPath() + 
-               " , instancePath: " + this.instancePath(),
-             { schema: this.schema(), 
-               instance: this.instance(), 
-               context: this.description 
-             }
-            );
   return this;
 }
 
 Context.prototype.subcontext = function(schemaPath,instancePath){
-  return new Context(this.primarySchema,this.primaryInstance,this.description)
-               .at(joinPath(this.schemaPath(),schemaPath),
-                   joinPath(this.instancePath(),instancePath)
-                  );
+  var ctx = new Context(this.primarySchema,this.primaryInstance,this.description)
+                 .at(joinPath(this.schemaPath(),schemaPath),
+                     joinPath(this.instancePath(),instancePath)
+                    );
+  ctx.debug("subcontext: schemaPath: " + ctx.schemaPath() + 
+               " , instancePath: " + ctx.instancePath(),
+             { schema: ctx.schema(), 
+               instance: ctx.instance(), 
+               context: ctx.description 
+             }
+           );
+  return ctx;
 }
 
 
