@@ -1,11 +1,13 @@
 'use strict';
 
-var assert = require('timoxley-assert')
-  , type = require('type')
-  , each = require('each')
-  , core = require('json-schema-core')
-  , validationPlugin = require('json-schema-valid')
-  , hyperPlugin = require('json-schema-hyper')
+var isBrowser = require('is-browser')
+  , assert = require('assert')
+  , Emitter = isBrowser ? require('emitter') : require('emitter-component')
+  , type = isBrowser ? require('type') : require('component-type')
+  , each = isBrowser ? require('each') : require('each-component')
+  , core = isBrowser ? require('json-schema-core') : require('json-schema-core-component')
+  , validationPlugin = isBrowser ? require('json-schema-valid') : require('json-schema-valid-component')
+  , hyperPlugin = isBrowser ? require('json-schema-hyper') : require('json-schema-hyper-component')
   , Schema = core.Schema
 
 Schema.use(validationPlugin);

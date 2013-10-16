@@ -1,4 +1,7 @@
-var type = require('type')
+'use strict';
+
+var isBrowser = require('is-browser')
+  , type = isBrowser ? require('type') : require('component-type')
 
 module.exports = validateNumeric;
 

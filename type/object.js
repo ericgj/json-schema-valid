@@ -1,6 +1,7 @@
 'use strict';
 
-var type = require('type')
+var isBrowser = require('is-browser')
+  , type = isBrowser ? require('type') : require('component-type')
   , has = hasOwnProperty
 
 module.exports = validateObject;

@@ -1,10 +1,13 @@
 'use strict';
 
-var validate = require('./validate')
+var isBrowser = require('is-browser')
+  , validate = require('./validate')
   , Context = require('./context')
-  , Emitter = require('emitter')
-  , each = require('each')
-  , type = require('type')
+  , Emitter = isBrowser ? require('emitter') : require('emitter-component')
+  , core = isBrowser ? require('json-schema-core') : require('json-schema-core-component')
+  , Schema = core.Schema
+  , each = isBrowser ? require('each') : require('each-component')
+  , type = isBrowser ? require('type') : require('component-type')
 
 var validateObject = require('./type/object')
   , validateArray = require('./type/array')

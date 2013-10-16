@@ -1,6 +1,8 @@
 'use strict';
-var deepEqual = require('../deepequal')
-  , type = require('type')
+
+var isBrowser = require('is-browser')
+  , type = isBrowser ? require('type') : require('component-type')
+  , deepEqual = require('../deepequal')
 
 module.exports = validateEnum;
 

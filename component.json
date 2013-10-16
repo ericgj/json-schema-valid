@@ -9,7 +9,8 @@
     "component/emitter": "*",
     "component/type": "*",
     "component/indexof": "*",
-    "component/each": "*"
+    "component/each": "*",
+    "forbeslindesay/is-browser": "*"
   },
   "development": {
     "timoxley/assert": "*",

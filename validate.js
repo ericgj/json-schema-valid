@@ -1,7 +1,8 @@
 'use strict';
 
-var indexOf = require('indexof')
-  , type = require('type')
+var isBrowser = require('is-browser')
+  , indexOf = isBrowser ? require('indexof') : require('indexof-component')
+  , type = isBrowser ? require('type') : require('component-type')
 
 module.exports = validate;
 

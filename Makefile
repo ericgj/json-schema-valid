@@ -11,12 +11,15 @@ build: components index.js $(DSTFILES)
 components: component.json
 	@component install --dev
 
+suite: $(DSTFILES)
+
 $(DST)/%.js: $(SRC)/%.json
+	@mkdir -p $(DST)
 	@echo "window['json-schema-test-suite']['$(basename $(notdir $@))'] = " > $@ 
 	@cat "$<"  >> $@
 	@echo ";" >> $@
 
 clean:
-	rm -fr build components template.js
+	rm -fr build components $(DST)
 
 .PHONY: clean

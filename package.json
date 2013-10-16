@@ -1,0 +1,31 @@
+{
+  "name": "json-schema-valid-component",
+  "version": "0.0.9",
+  "description": "JSON Schema validator",
+  "main": "index.js",
+  "directories": {
+    "type": "type",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "make suite && mocha --ui bdd test/suite.js test/tests.js"
+  },
+  "dependencies": {
+    "json-schema-core-component": "https://github.com/ericgj/json-schema-core/tarball/master",
+    "each-component": "https://github.com/component/each/tarball/master",  
+    "component-type": "https://github.com/component/type/tarball/master",
+    "indexof-component": "https://github.com/component/indexof/tarball/master",  
+    "emitter-component": "https://github.com/component/emitter/tarball/master",  
+    "is-browser": "https://github.com/forbeslindesay/is-browser/tarball/master"
+  },
+  "devDependencies": {
+    "json-schema-hyper-component": "https://github.com/ericgj/json-schema-hyper/tarball/master",
+    "mocha": "*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ericgj/json-schema-valid.git"
+  },
+  "author": "Eric Gjertsen",
+  "license": "MIT"
+}
