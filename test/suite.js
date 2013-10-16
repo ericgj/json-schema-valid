@@ -10,6 +10,20 @@ var isBrowser = require('is-browser')
   , hyperPlugin = isBrowser ? require('json-schema-hyper') : require('json-schema-hyper-component')
   , Schema = core.Schema
 
+if (!isBrowser && !window){
+  var window = {}
+  window['json-schema-test-suite'] = {};
+
+  var fs = require('fs')
+  var files = fs.readdirSync(__dirname + '/suite.node')
+  each(files, function(file){
+    // excluded tests
+    if (file == 'ref.json' || file == 'refRemote.json' ||  file == 'definitions.json') return;
+    console.log('loading...' + file);
+    window['json-schema-test-suite'][file] = require(__dirname + '/suite.node/' + file);
+  })
+}
+
 Schema.use(validationPlugin);
 Schema.use(hyperPlugin);
 
@@ -20,7 +34,7 @@ listener.on('error', function(e){
 });
 
 listener.on('debug', function(data){
-  console.debug('  %s , %s , debug: %o', data.context, data.message, data);
+  console.log('  %s , %s , debug: %o', data.context, data.message, data);
 })
 
 var suite = window['json-schema-test-suite']

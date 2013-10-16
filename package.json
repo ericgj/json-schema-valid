@@ -8,7 +8,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "make suite && mocha --ui bdd test/suite.js test/tests.js"
+    "test": "make node && mocha --ui bdd test/suite.js test/tests.js"
   },
   "dependencies": {
     "json-schema-core-component": "https://github.com/ericgj/json-schema-core/tarball/master",
