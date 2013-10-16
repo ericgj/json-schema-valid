@@ -8,9 +8,13 @@
 
 ## Installation
 
-  Via [component][component]:
+[component][component]:
 
     $ component install ericgj/json-schema-valid
+
+npm:
+
+    $ npm install json-schema-valid-component
 
 ## Examples
 
