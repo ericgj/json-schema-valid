@@ -72,6 +72,10 @@ Validator.prototype.emitter = function(emitter){
   else                      { this._emitter = emitter; }
 }
 
+/******************************** 
+ * Standalone validate()
+ *
+ */
 Validator.prototype.validate = function(schema,instance,desc,fn){
   if (type(desc)=='function'){
     fn = desc; desc = undefined;
@@ -90,34 +94,69 @@ Validator.prototype.validateRaw = function(schema,instance,desc,fn){
 
 /******************************** 
  * Schema plugin
- * - adds validate() and resolveLinks() to correlation
- * - wraps subschema() to take into account validation from 
- *   correlation.getPath()
  *
- * Note that resolveLinks() is used for links() and related methods
- *   when multiple valid schemas apply: cf. json-schema-hyper plugin.
+ * - Adds validate() to correlation
+ * - Wraps existing correlation methods to account for validation 
+ *   (i.e., when multiple schemas apply).
+ *   - Adds resolveLinks() to correlation, used as basis for 
+ *     correlation.links() defined in json-schema-hyper plugin.
+ *   - Wraps subschema() 
+ *   - Wraps coerce()
  *
  */
 function plugin(target){
   target.addBinding('validate',validateBinding);
   target.addBinding('resolveLinks',resolveLinksBinding);
   target.addBinding('subschema',subschemaBinding);
+  target.addBinding('coerce',coerceBinding);
 }
 
+/*
+ * correlation.validate()
+ *
+ * Validates correlation instance against correlation schema.
+ *
+ * @returns boolean
+ *
+ */
 function validateBinding(desc,fn){
   var validator = new Validator();
   return validator.validate(this.schema,this.instance,desc,fn);
 }
 
+/*
+ * correlation.resolveLinks()
+ *
+ * Validates, and builds a links object, concatenating all link
+ * specifications from all valid schemas. Links are then resolved
+ * against the correlation instance.
+ *
+ * Typically this method is not called directly but instead via
+ * correlation.links(), defined in json-schema-hyper.
+ *
+ * @returns new Links
+ *
+ */
 function resolveLinksBinding(){
   var links;
   var valid = this.validate( function(schemas){
     links = mergeLinks(schemas);
   })
-  if (!valid) return undefined;
+  if (!valid) return;
   return links && links.resolve(this.instance);
 }
 
+/*
+ * correlation.subschema()
+ *
+ * Validates, and builds a 'collated' schema (Schema.allOf) for the given
+ * property/array-index from all valid schemas. Note if only one valid 
+ * schema (the "top-level schema"), the behavior is identical to the basic 
+ * subschema() method provided in json-schema-core.
+ *
+ * @returns schema
+ *
+ */
 function subschemaBinding(prop){
   if (!this.schema || !this.instance) return;
   var self = this
@@ -127,6 +166,33 @@ function subschemaBinding(prop){
   });
   return ret;
 }
+
+/*
+ * correlation.coerce()
+ *
+ * Validates, and coerces instance according to:
+ * (1) the first valid schema that specifies either `type` or `default` or both;
+ * (2) the "top-level schema", otherwise
+ *
+ * Note that the ordering of valid schemas cannot be relied on, so it is
+ * recommended that either the top-level schema specify type and/or default, or
+ * _only one_ combination schema specify these.
+ *
+ * @returns new Correlation
+ *
+ */
+function coerceBinding(){
+  if (!this.schema || !this.instance) return;
+  var self = this
+    , ret
+  this.validate( function(schemas){
+    ret = buildCoerce.call(self,schemas);
+  });
+  return ret;
+}
+
+
+// private
 
 function buildSubschema(schemas,prop){
   var protoSubschema = this.__proto__.subschema
@@ -145,6 +211,28 @@ function buildSubschema(schemas,prop){
 }
 
 
+function buildCoerce(schemas){
+  var protoCoerce = this.__proto__.coerce
+    , instance = this.instance
+    , ret
+  for (var i=0;i<schemas.length;++i){
+    var schema = schemas[i]
+      , corr = schema.bind(instance)
+
+    // coerce against first schema
+    if (!ret) ret = protoCoerce.call(corr);
+
+    // and overwrite with first schema that has either type or default specified
+    // if any
+    if (( schema.hasProperty('type') || 
+          schema.hasProperty('default') )) {
+      ret = protoCoerce.call(corr)
+      break;  
+    }
+  }
+  return ret;
+}
+
 
 // utils
 
@@ -162,5 +250,4 @@ function mergeLinks(schemas){
   })
   return targetLinks;
 }
-
 

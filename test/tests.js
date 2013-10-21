@@ -139,6 +139,69 @@ describe('json-schema-valid: additional tests', function(){
     })
 
   })
+
+  describe('coerce', function(){
+
+    function getCorrelation(schemakey,instancekey){
+      instancekey = instancekey || schemakey;
+      var schema = new Schema().parse(fixtures.coerce.schema[schemakey]);
+      var instance = JSON.parse(JSON.stringify(fixtures.coerce.instance[instancekey]));
+      return schema.bind(instance);
+    }
+
+    it('should coerce using valid top-level schema when no combinations', function(){
+      var subject = getCorrelation('none','obj')
+        , act = subject.coerce()
+        , expdefault = subject.schema.property('default')
+        , expinst = subject.instance
+      assert(act);
+      console.log('coerce no combinations: %o', act.instance);
+      assert(act.instance);
+      assert(act.instance.one == expinst.one);
+      assert(act.instance.two == expdefault.two);
+      assert(act.instance.three == expinst.three);
+    })
+
+    it('should return undefined if not valid', function(){
+      var subject = getCorrelation('none','invalid')
+        , act = subject.coerce()
+      assert(act === undefined);
+    })
+
+    it('should coerce using first valid schema that has type specified', function(){
+      var subject = getCorrelation('comboType','obj')
+        , act = subject.coerce()
+      assert(act);
+      console.log('coerce combinations type: %o', act.instance);
+      assert(act.instance);
+      assert.deepEqual(act.instance, subject.instance);
+    })
+
+    it('should coerce using first valid schema that has default specified', function(){
+      var subject = getCorrelation('comboDefault','obj')
+        , act = subject.coerce()
+        , expdefault = subject.schema.$('#/anyOf/1').property('default')
+        , expinst = subject.instance
+      assert(act);
+      console.log('coerce combinations default: %o', act.instance);
+      assert(act.instance);
+      assert(act.instance.one); assert(act.instance.two); assert(act.instance.three);
+      assert(act.instance.one == expinst.one); 
+      assert(act.instance.two == expdefault.two); 
+      assert(act.instance.three == expinst.three); 
+    })
+
+    it('should coerce as deep-equal to instance if no type or default specified in any valid schemas', function(){
+      var subject = getCorrelation('comboNone', 'array')
+        , act = subject.coerce()
+      assert(act);
+      console.log('coerce combinations no type or default: %o', act.instance);
+      assert(act.instance);
+      assert.deepEqual(act.instance, subject.instance);
+    })
+    
+  })
+
 })
     
 
@@ -241,4 +304,95 @@ fixtures.resolvelinks.instance.one = {
   one: 1,
   two: 2
 }
+
+
+fixtures.coerce = {};
+fixtures.coerce.schema = {};
+fixtures.coerce.schema.none = {
+  required: ["one"],
+  default: { one: "1", two: "2" }
+}
+
+fixtures.coerce.schema.comboType = {
+  required: ["one"],
+  anyOf: [
+    {
+      properties: {
+        "two": { type: 'string' }
+      },
+      required: ["two"]
+    },
+    {
+      type: 'array'
+    },
+    {
+      type: 'object',
+      minProperties: 2
+    }
+  ],
+  oneOf: [
+    { 
+      required: ["three"]
+    },
+    {
+      required: ["four"]
+    },
+    {
+      required: ["five"]
+    }
+  ]
+}
+
+fixtures.coerce.schema.comboDefault = {
+  required: ["one"],
+  anyOf: [
+    {
+      type: 'array'
+    },
+    {
+      maxProperties: 5,
+      default: { one: "11", two: "22", three: "33" }
+    },
+    {
+      minProperties: 2
+    },
+    {
+      properties: {
+        "two": { type: "string" }
+      },
+      required: ["two"],
+      default: { two: "22" }
+    }
+  ]
+}
+
+fixtures.coerce.schema.comboNone = {
+  anyOf: [
+    { minItems: 1 },
+    { type: 'array',
+      items: { type: "numeric" } 
+    },
+    { items: {
+        required: ["one","two","three"]
+      }
+    }
+  ]
+}
+
+fixtures.coerce.instance = {};
+fixtures.coerce.instance.obj = {
+  one: "1",
+  three: "3"
+}
+
+fixtures.coerce.instance.invalid = {
+  two: "2",
+  three: "3"
+}
+
+fixtures.coerce.instance.array = [
+ { one: "1", two: "2", three: "3" },
+ { one: "11", two: "22", three: "33" }
+]
+
 
