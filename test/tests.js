@@ -207,6 +207,13 @@ describe('json-schema-valid: additional tests', function(){
       assert.deepEqual(act.instance, subject.instance);
     })
     
+    it('should coerce false instances', function(){
+      var subject = getCorrelation('booltype','falseval')
+        , act = subject.coerce()
+      assert(act);
+      assert(act.instance == subject.instance);
+    })
+
   })
 
 })
@@ -397,6 +404,10 @@ fixtures.coerce.schema.comboNone = {
   ]
 }
 
+fixtures.coerce.schema.booltype = {
+  type: "boolean"
+}
+
 fixtures.coerce.instance = {};
 fixtures.coerce.instance.obj = {
   one: "1",
@@ -413,4 +424,5 @@ fixtures.coerce.instance.array = [
  { one: "11", two: "22", three: "33" }
 ]
 
+fixtures.coerce.instance.falseval = false;
 

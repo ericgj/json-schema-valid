@@ -120,6 +120,7 @@ function plugin(target){
  *
  */
 function validateBinding(desc,fn){
+  if (!this.schema || this.instance === undefined) return;
   var validator = new Validator();
   return validator.validate(this.schema,this.instance,desc,fn);
 }
@@ -138,6 +139,7 @@ function validateBinding(desc,fn){
  *
  */
 function resolveLinksBinding(){
+  if (!this.schema || this.instance === undefined) return;
   var links;
   var valid = this.validate( function(schemas){
     links = mergeLinks(schemas);
@@ -158,7 +160,7 @@ function resolveLinksBinding(){
  *
  */
 function subschemaBinding(prop){
-  if (!this.schema || !this.instance) return;
+  if (!this.schema || this.instance === undefined) return;
   var self = this
     , ret
   this.validate( function(schemas){
@@ -182,7 +184,7 @@ function subschemaBinding(prop){
  *
  */
 function coerceBinding(){
-  if (!this.schema || !this.instance) return;
+  if (!this.schema || this.instance === undefined) return;
   var self = this
     , ret
   this.validate( function(schemas){
