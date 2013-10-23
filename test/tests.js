@@ -93,6 +93,13 @@ describe('json-schema-valid: additional tests', function(){
       assert(expinstance === act.instance);
     })
 
+    it('should validate subschema', function(){
+      var subject = getCorrelation('validate','validate');
+      var sub = subject.subschema('one')
+        , act = sub.bind(subject.instance['one'])
+      assert(act.validate());
+    })
+
   })
 
   describe('links', function(){
@@ -241,6 +248,13 @@ fixtures.subschema.schema.allof = {
   ]
 }
 
+fixtures.subschema.schema.validate = {
+  type: 'object',
+  properties: {
+    one: 'string'
+  }
+}
+
 
 fixtures.subschema.instance.one = {
   one: { }
@@ -248,6 +262,10 @@ fixtures.subschema.instance.one = {
 
 fixtures.subschema.instance.two = {
   one: { two: {} }
+}
+
+fixtures.subschema.instance.validate = {
+  one: "1"
 }
 
 fixtures.resolvelinks = {};

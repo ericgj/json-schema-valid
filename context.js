@@ -5,10 +5,12 @@ var has = hasOwnProperty
 module.exports = Context;
 
 function Context(schema,instance,desc){
-  if (!(this instanceof Context)) return new Context(schema,instance,path);
+  if (!(this instanceof Context)) return new Context(schema,instance,desc);
   this.primarySchema = schema; this.primaryInstance = instance;
   this.description = desc || schema.property('description');
-  return this.at('#','#');
+  this._schemaSegs = [];
+  this._instanceSegs = [];
+  return this;
 }
   
 Context.emitter = function(emitter){
@@ -23,21 +25,26 @@ Context.prototype.emitter = function(){
   return Context.emitter();
 }
 
-Context.prototype.at = function(schemaPath,instancePath){
-  var segs = schemaPath.split('/')
-  if (segs[0]!=='#') segs.unshift('#');
-  this._schemaSegs = segs;
-  segs = instancePath.split('/')
-  if (segs[0]!=='#') segs.unshift('#');
-  this._instanceSegs = segs;
+Context.prototype.atSegments = function(schemaSegs,instanceSegs){
+  this._schemaSegs = schemaSegs;
+  this._instanceSegs = instanceSegs;
   return this;
 }
 
 Context.prototype.subcontext = function(schemaPath,instancePath){
+  var schemaSegs = [], instanceSegs = []
+  schemaSegs.push.apply(schemaSegs, this.schemaSegments());
+  if (schemaPath !== undefined){
+    schemaSegs.push.apply(schemaSegs, schemaPath.toString().split('/'));
+  }
+  instanceSegs.push.apply(instanceSegs, this.instanceSegments());
+  if (instancePath !== undefined){
+    instanceSegs.push.apply(instanceSegs, instancePath.toString().split('/'));
+  }
+  
   var ctx = new Context(this.primarySchema,this.primaryInstance,this.description)
-                 .at(joinPath(this.schemaPath(),schemaPath),
-                     joinPath(this.instancePath(),instancePath)
-                    );
+                 .atSegments(schemaSegs,instanceSegs);
+
   ctx.debug("subcontext: schemaPath: " + ctx.schemaPath() + 
                " , instancePath: " + ctx.instancePath(),
              { schema: ctx.schema(), 
@@ -50,7 +57,9 @@ Context.prototype.subcontext = function(schemaPath,instancePath){
 
 
 Context.prototype.schemaPath = function(){
-  return this.schemaSegments().join('/');
+  var segs = this.schemaSegments()
+  if (segs.length == 0) return;
+  return segs.join('/');
 }
 
 Context.prototype.schemaSegments = function(){
@@ -58,7 +67,9 @@ Context.prototype.schemaSegments = function(){
 }
 
 Context.prototype.instancePath = function(){
-  return this.instanceSegments().join('/');
+  var segs = this.instanceSegments()
+  if (segs.length == 0) return;
+  return segs.join('/');
 }
 
 Context.prototype.instanceSegments = function(){
@@ -66,13 +77,21 @@ Context.prototype.instanceSegments = function(){
 }
 
 Context.prototype.schema = function(){
-  return this.primarySchema && 
-    this.primarySchema.getPath(this.schemaPath());
+  if (!this.primarySchema) return; 
+  var schemaPath = this.schemaPath()
+  return (schemaPath === undefined 
+            ? this.primarySchema
+            : this.primarySchema.getPath(schemaPath)
+         );
 }
 
 Context.prototype.instance = function(){
-  return this.primaryInstance && 
-    getPath.call(this.primaryInstance,this.instancePath());
+  if (this.primaryInstance === undefined) return;
+  var instancePath = this.instancePath()
+  return (instancePath === undefined 
+            ? this.primaryInstance
+            : getPath(this.primaryInstance,instancePath)
+         );
 }
 
 
@@ -153,19 +172,31 @@ function setContextInfo(target,message,prop){
   target.instanceValue = actual;
 }
 
-
 function joinPath(p1,p2){
-  p1 = (p1 === undefined ? '' : p1).toString();
-  p2 = (p2 === undefined ? '' : p2).toString();
-  var segments = []; segments.push.apply(segments,p1.split('/'));
-  if (p2) segments.push.apply(segments,p2.split('/'));
+  var segments = []; 
+  if (p1) segments.push.apply(segments,p1.toString().split('/'));
+  if (p2) segments.push.apply(segments,p2.toString().split('/'));
   return segments.join('/');
 }
 
 
 // utils
 
-/* this == instance object */
+
+function getPath(instance,path){
+  if (path === undefined) return instance;
+  path = path.toString();
+  if (0==path.length) return instance;
+  var parts = path.split('/')
+    , prop = parts.shift()
+    , rest = parts.join('/')
+  if ('#'==prop) return getPath(instance,rest);
+  if (!has.call(instance,prop)) return;
+  var branch = instance[prop]
+  return getPath(branch,rest);
+}
+
+/*
 function getPath(path){
   path = (path === undefined ? '' : path).toString();
   if (0==path.length) return this;
@@ -177,4 +208,4 @@ function getPath(path){
   var branch = this[prop]
   return getPath.call(branch,rest);
 }
-
+*/

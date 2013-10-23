@@ -106,7 +106,7 @@ function validateObjectDependencies(){
                           ["dependencies",key].join('/')
                          ) && valid;
     } else if (dep.nodeType == 'Schema'){
-      var ctx = self.subcontext(['dependencies',key].join('/'),'')
+      var ctx = self.subcontext(['dependencies',key].join('/'))
       valid = ctx.validate() && valid;
     }
   })
