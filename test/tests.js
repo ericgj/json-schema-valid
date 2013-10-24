@@ -71,6 +71,13 @@ describe('json-schema-valid: additional tests', function(){
      assert(act === exp);
     })
 
+    it('should get empty schema when valid and specified path not covered by schema', function(){
+      var subject = getCorrelation('none','notcovered');
+      var act = subject.subschema('two');
+      console.log('subschema not covered: %o', act);
+      assert(act);
+    })
+
     it('should get subschema from schema and from all allOf schemas, when valid', function(){
       var subject = getCorrelation('allof','one');
       var act = subject.subschema('one');
@@ -265,6 +272,11 @@ fixtures.subschema.schema.validate = {
 
 fixtures.subschema.instance.one = {
   one: { }
+}
+
+fixtures.subschema.instance.notcovered = {
+  one: { },
+  two: { }
 }
 
 fixtures.subschema.instance.two = {

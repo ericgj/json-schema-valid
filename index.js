@@ -205,10 +205,12 @@ function buildSubschema(schemas,prop){
       , sub = protoSubschema.call(corr,prop)
     if (sub) found.push(sub);
   })
-  if (found.length == 1){
+  if (found.length == 0){
+    return (new Schema());  // if property in instance but not any valid schema
+  } else if (found.length == 1){
     return (found[0]);
   } else {
-    return (new Schema.allOf(found));
+    return (Schema.allOf(found));
   }
 }
 
