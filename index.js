@@ -45,7 +45,7 @@ function Validator(emitter){
 
   } else {   // standalone validator
     if (!(this instanceof Validator)) return new Validator(emitter);
-    this.emitter(emitter || Validator.emitter());
+    this.emitter(emitter);
     return this;
 
   }
@@ -61,16 +61,11 @@ Validator.addType = function(key,fn){
   return this;
 }
 
-/* default emitter */
-Validator.emitter = function(){
-  this._emitter = this._emitter || new Emitter();
-  return this._emitter;
-}
-
 Validator.prototype.emitter = function(emitter){ 
   if (arguments.length == 0){ return this._emitter;    }
   else                      { this._emitter = emitter; }
 }
+
 
 /******************************** 
  * Standalone validate()
@@ -111,6 +106,7 @@ function plugin(target){
   target.addBinding('coerce',coerceBinding);
 }
 
+
 /*
  * correlation.validate()
  *
@@ -121,7 +117,7 @@ function plugin(target){
  */
 function validateBinding(desc,fn){
   if (!this.schema || this.instance === undefined) return;
-  var validator = new Validator();
+  var validator = new Validator(this);
   return validator.validate(this.schema,this.instance,desc,fn);
 }
 

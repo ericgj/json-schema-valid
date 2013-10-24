@@ -64,13 +64,13 @@ npm:
   // attach plugin to Schema 
   Schema.use(plugin);
 
-  // error handling via 'default' emitter
-  var emitter = plugin.emitter();
-  emitter.on('error', function(e){
+  // once you have a correlation, you can listen for errors and
+  // call validate() on it
+
+  correlation.on('error', function(e){
     console.error('Error: %o', e);
   })
 
-  // once you have a correlation, you can call validate() on it
   var valid = correlation.validate();
 
   // subschema for given instance property
@@ -106,12 +106,6 @@ npm:
   Add custom format validation function or regular expression to match.
   Note specifying a regular expression here is essentially like having
   named schema `pattern` properties.
-
-### Validator.emitter()
-
-  Returns a (singleton) Emitter instance, used by default when a 
-  validator is not initialized with an external emitter.
- 
 
 ### Correlation#validate( [desc:String], [callback:Function] )
 

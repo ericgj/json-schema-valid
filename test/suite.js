@@ -27,16 +27,6 @@ if (!isBrowser && !window){
 Schema.use(validationPlugin);
 Schema.use(hyperPlugin);
 
-var listener = validationPlugin.emitter();
-
-listener.on('error', function(e){
-  console.error('  %s , %s , error: %o', e.context, e.message, e);
-});
-
-listener.on('debug', function(data){
-  console.log('  %s , %s , debug: %o', data.context, data.message, data);
-})
-
 var suite = window['json-schema-test-suite']
 
 describe('json-schema-valid: suite', function(){
@@ -74,7 +64,16 @@ function genTests(obj){
       var exp = testcase.valid
         , instance = testcase.data
         , subject = schema.bind(instance)
+
       console.log(testcase.description + ' : %o , expected: %s', [subject.schema, subject.instance], exp);
+
+      subject.on('error', function(e){
+        console.error('  %s , %s , error: %o', e.context, e.message, e);
+      });
+
+      subject.on('debug', function(data){
+        console.log('  %s , %s , debug: %o', data.context, data.message, data);
+      })
 
       it(testcase.description, function(){
         // this is a kludge to get around scoping issues
