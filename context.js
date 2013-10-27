@@ -1,15 +1,15 @@
 'use strict';
 
-var has = hasOwnProperty
+var Enumerable = require('enumerable')
+  , has = hasOwnProperty
 
 module.exports = Context;
 
-function Context(schema,instance,schemaPath,instancePath){
+function Context(schema,instance,schemaPath,instancePath,asserts){
   this._schema = schema; this._instance = instance;
   this._schemaPath = schemaPath; this._instancePath = instancePath;
-  this._asserts = [];
+  this._asserts = asserts || [];
   this._valid = true;
-  this._subctx = [];
   return this;
 }
 
@@ -20,8 +20,7 @@ Context.prototype.subcontext = function(schemaPath,instancePath){
     , subinst = instancePath ? getPath(instance,instancePath) : instance
     , subschPath = joinPath(this.schemaPath(),schemaPath)
     , subinstPath = joinPath(this.instancePath(),instancePath)
-    , sub = new Context(subsch,subinst,subschPath,subinstPath)
-  this._subctx.push(sub);
+    , sub = new Context(subsch,subinst,subschPath,subinstPath,this._asserts)
   return sub;
 }
 
@@ -55,95 +54,40 @@ Context.prototype.instancePath = function(){
   return this._instancePath;
 }
 
-Context.prototype.subcontexts = function(){
-  return this._subctx;
-}
-
 Context.prototype.assert = function(value, message, prop, actual){
   var assert = new Assertion(this,value)
   if (actual !== undefined) assert.actual(actual);
   if (prop !== undefined) assert.property(prop);
   if (!value && message !== undefined) assert.predicate(message);
-  this._asserts.push(assert);
   this._valid = value && this._valid;
+  this._asserts.push(assert);
 }
 
-Context.prototype.assertions = function(mapfn,selectfn){
-  var asserts = this._asserts
-    , selectfn = function(){ return true; }
-    , ret = []
-  for (var i=0;i<asserts.length;++i){
-    var a = asserts[i]
-    if (!selectfn(a)) continue;
-    ret.push(mapfn ? mapfn(a.toObject()) : a.toObject());
-  }
-  return ret;
+Context.prototype.assertions = function(){
+  return Enumerable(this._asserts).map('toObject()');
 }
 
-Context.prototype.errors = function(mapfn){
-  var ctx = this;
-  return this.assertions(
-           mapfn,
-           function(assert){ 
-             return (!ctx.valid() && !assert.valid()) 
-           }
-         )
-}
-
-Context.prototype.allErrors = function(){
-  var ret = []
-  this.reduce(ret, function(memo,ctx,level){
-    if (ctx.valid()) return;
-    var errs = ctx.errors( function(err){ 
-                             err.level = level; return err;
-                           });
-    memo.push.apply(memo,errs);
-    return memo;
+Context.prototype.errors = function(){
+  return this.assertions().select(function(a){
+    return !(a.contextValid || a.valid);
   });
-  return ret;
+}
+
+Context.prototype.trace = function(selectfn){
+  return this.assertions().reduce( 
+    function(accum,a){
+      if (selectfn && !selectfn(a)) return accum;
+      accum.push(a.message);
+      return accum;
+    },
+    []
+  ).reverse();
 }
 
 Context.prototype.errorTrace = function(){
-  var ret = []
-  this.reduce(ret, function(memo,ctx,level){
-    if (ctx.valid()) return;
-    var errs = ctx.errors( function(err){
-          return repeatString(' ',level * 2) + 
-                 err.message
-        });
-    memo.push.apply(memo,errs);
-    return memo;
+  return this.trace( function(a){
+    return !(a.contextValid || a.valid);
   });
-  return ret;
-}
-
-Context.prototype.assertionTrace = function(){
-  var ret = []
-  this.reduce(ret, function(memo,ctx,level){
-    var asserts = ctx.assertions( function(assert){
-          return repeatString(' ',level * 2) + 
-                 assert.message
-        });
-    memo.push.apply(memo,assert);
-    return memo;
-  });
-  return ret;
-}
-
-Context.prototype.reduce = function(memo,fn,level){
-  fn = fn || function(ctx){ return ctx; }
-  level = level || 0;
-
-  memo = fn(memo,this,level);
-
-  var subctx = this.subcontexts()
-  level++;
-  for (var i=0;i<subctx.length;++i){
-    var ctx = subctx[i]
-    ctx.reduce(memo,fn,level);
-  }
-  level--;
-  return memo;
 }
 
 
@@ -157,6 +101,10 @@ function Assertion(ctx,valid){
 
 Assertion.prototype.valid = function(){
   return this._valid;
+}
+
+Assertion.prototype.contextValid = function(){
+  return this.context().valid();
 }
 
 Assertion.prototype.context = function(){
@@ -217,6 +165,7 @@ Assertion.prototype.toObject = function(){
     , context = this.context()
     , path = context.schemaPath()
     , prop = this.property()
+  ret.contextValid = this.contextValid();
   ret.valid = this.valid();
   ret.predicate = this.predicate();
   ret.message = this.message();
@@ -237,6 +186,7 @@ Assertion.prototype.toObject = function(){
 // utils
 
 function joinPath(p1,p2){
+  if (!(p1 || p2)) return;
   var segments = []; 
   if (p1) segments.push.apply(segments,p1.toString().split('/'));
   if (p2) segments.push.apply(segments,p2.toString().split('/'));

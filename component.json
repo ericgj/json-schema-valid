@@ -7,6 +7,7 @@
   "dependencies": {
     "ericgj/json-schema-core": "*",
     "component/emitter": "*",
+    "component/enumerable": "*",
     "component/type": "*",
     "component/indexof": "*",
     "component/each": "*",

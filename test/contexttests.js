@@ -58,15 +58,15 @@ describe('json-schema-valid: context unit tests', function(){
 
   describe('assert', function(){
 
-    it('should set simple assertion error', function(){
+    it('should set simple assertion failure', function(){
       var subject = getContext('assert','simple','simple')
       subject.assert(false,'type does not match','type'); 
       var act = subject.assertions()
-      console.log('assert simple error: %o', act);
-      assert(act.length == 1);
-      assert(act[0].expected = subject.property('type'));
-      assert(act[0].actual = subject.instance());
-      assert(act[0].predicate);
+      console.log('assert simple failure: %o', act);
+      assert(act.value().length == 1);
+      assert(act.at(0).expected = subject.property('type'));
+      assert(act.at(0).actual = subject.instance());
+      assert(act.at(0).predicate);
     })
 
     it('should set simple assertion success', function(){
@@ -74,41 +74,36 @@ describe('json-schema-valid: context unit tests', function(){
       subject.assert(true,'type does not match','type'); 
       var act = subject.assertions()
       console.log('assert simple success: %o', act);
-      assert(act.length == 1);
-      assert(act[0].expected = subject.property('type'));
-      assert(act[0].actual = subject.instance());
-      assert(!act[0].predicate);
+      assert(act.value().length == 1);
+      assert(act.at(0).expected = subject.property('type'));
+      assert(act.at(0).actual = subject.instance());
+      assert(!act.at(0).predicate);
     })
 
-    it('should set simple assertion error with actual value', function(){
+    it('should set simple assertion failure with actual value', function(){
       var subject = getContext('assert','simple','simple')
       subject.assert(false,'type does not match','type', type(subject.instance())); 
       var act = subject.assertions()
-      console.log('assert simple error with actual value: %o', act);
-      assert(act.length == 1);
-      assert(act[0].actual = type( subject.instance()) );
-      assert(act[0].instanceValue = subject.instance() );
+      console.log('assert simple failure with actual value: %o', act);
+      assert(act.value().length == 1);
+      assert(act.at(0).actual = type( subject.instance()) );
+      assert(act.at(0).instanceValue = subject.instance() );
     })
   
-  })
-
-
-  /* Note these are exploratory tests
-     I'm not sure what allErrors should look like
-  */
-  describe('assert: allErrors', function(){
-
-    it('should collect errors plus all errors from subcontexts', function(){
+    it('should set nested assertions', function(){
       var subject = getContext('assert','nested','nested')
         , sub = subject.subcontext('properties/one','one')
+      sub.assert(false,'type does not match','type');
       sub.assert(false,'something else is wrong with property one');
       subject.assert(false,'properties invalid'); // simulating nested error
-      sub.assert(false,'type does not match','type');
-      subject.assert(false,'dependencies missing');
-      var act = subject.allErrors()
-      console.log('assert nested errors: %o', act);
-      var msgs = subject.errorTrace();
-      for (var i=0;i<msgs.length;++i) console.log(msgs[i]);
+      subject.assert(true,'dependencies valid');
+      var act = subject.assertions()
+      console.log('assert nested: %o', act);
+      assert(act.value().length == 4);
+      var trace = subject.errorTrace()
+      for (var i=0;i<trace.length;++i){
+        console.log(trace[i]);
+      }
     })
 
   })
