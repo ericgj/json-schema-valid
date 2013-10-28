@@ -7,20 +7,12 @@ var isBrowser = require('is-browser')
 module.exports = validate;
 
 function validate(fn){
-  var valid = true
-  var combos = function(schemas){
-    if (valid && fn) fn(schemas);
-  }
+  validateType.call(this);
+  validateTypes.call(this);
+  validateFormat.call(this);
+  validateCombinations.call(this, fn);
 
-  valid = validateType.call(this) && valid
-
-  valid = validateTypes.call(this) && valid
-
-  valid = validateFormat.call(this) && valid;
-
-  valid = validateCombinations.call(this, combos) && valid;
-
-  return (valid);
+  return (this.valid());
 }
 
 validate._types = {};
@@ -48,38 +40,37 @@ function validateType(){
     , instance = this.instance()
     , actual = type(instance)
     , isinteger = actual == 'number' && (instance==(instance|0))
-  if (!types) return true;
+  if (!types) return;
 
   types = ('array' == type(types) ? types : [types])
-  var valid = this.assert((indexOf(types,actual)>=0) || 
-                            (isinteger && indexOf(types,'integer')>=0), 
-                          "type does not match",
-                          "type"
-                         );
-  return (valid);
+  this.assert((indexOf(types,actual)>=0) || 
+                (isinteger && indexOf(types,'integer')>=0), 
+              "type does not match",
+              "type",
+              actual
+             );
 }
 
+// Note: assertions done in concrete validator functions
 function validateTypes(){
   var types = validate.getTypes()
-    , valid = true
   for (var k in types){
     var validator = types[k]
-    valid = validator.call(this) && valid;
+    validator.call(this);
   }
-
-  return (valid);
 }
 
 function validateFormat(){
   var format = this.property('format')
-    , valid = true
-  if (!format) return (valid);
+  if (!format) return;
 
   var formatter = validate.getFormat(format)
-  if (!formatter) return (valid);
+  if (!formatter) return; 
   
-  valid = formatter.call(this);
-  return (valid);
+  this.assert( formatter.call(this),
+              "format does not match",
+              "format"
+             );
 }
 
 function validateCombinations(fn){
@@ -89,18 +80,37 @@ function validateCombinations(fn){
     , oneOf = this.get('oneOf')
     , not   = this.get('not')
  
-  var valids = [this.schema()], valid = true
+  var valids = [this.schema()]
   var collect = function(schemas){
     valids.push.apply(valids,schemas);
   }
 
-  if (allOf) valid = validateAllOf.call(this,collect) && valid;
-  if (anyOf) valid = validateAnyOf.call(this,collect) && valid;
-  if (oneOf) valid = validateOneOf.call(this,collect) && valid;
-  if (not)   valid = validateNot.call(this) && valid;
+  if (allOf){
+    this.assert( validateAllOf.call(this,collect),
+                 "not all of conditions valid",
+                 "allOf"
+               );
+  }
+  if (anyOf){
+    this.assert( validateAnyOf.call(this,collect),
+                 "not any of conditions valid",
+                 "anyOf"
+               );
+  }
+  if (oneOf){
+    this.assert( validateOneOf.call(this,collect),
+                 "not any of conditions valid, or more than one of conditions valid",
+                 "oneOf"
+               );
+  }
+  if (not){
+    this.assert( validateNot.call(this),
+                 "not condition invalid",
+                 "not"
+               );
+  }
 
-  if (valid && fn) fn(valids);
-  return (valid);
+  if (this.valid() && fn) fn(valids);
 }
 
 
@@ -111,21 +121,24 @@ function validateCombinations(fn){
 
 function validateAllOf(fn){
   var validfn = function(ctx,valid,collect){ 
-    return (validate.call(ctx,collect) && valid);
+    validate.call(ctx,collect);
+    return (ctx.valid() && valid);
   }
   return validateCombination.call(this,'allOf',true,validfn,fn);
 }
 
 function validateAnyOf(fn){
   var validfn = function(ctx,valid,collect){ 
-    return (validate.call(ctx,collect) || valid);
+    validate.call(ctx,collect);
+    return (ctx.valid() || valid);
   }
   return validateCombination.call(this,'anyOf',false,validfn,fn);
 }
 
 function validateOneOf(fn){
   var validfn = function(ctx,valid,collect){ 
-    return (validate.call(ctx,collect) ? !valid : valid);
+    validate.call(ctx,collect);
+    return (ctx.valid() ? !valid : valid);
   }
   return validateCombination.call(this,'oneOf',false,validfn,fn);
 }
@@ -134,7 +147,8 @@ function validateNot(){
   var ctx = this.subcontext('not')
     , not = ctx.schema
   if (!not) return;
-  return (!(validate.call(ctx)));
+  validate.call(ctx) 
+  return (!ctx.valid());
 }
 
 function validateCombination(key,valid,validfn,fn){

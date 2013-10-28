@@ -7,61 +7,60 @@ var isBrowser = require('is-browser')
 module.exports = validateObject;
 
 function validateObject(){
-  var valid = true
-  if (type(this.instance())!=='object') return (valid);
-  valid = validateObjectMinMax.call(this) && valid;
-  valid = validateObjectRequired.call(this) && valid;
-  valid = validateObjectProperties.call(this) && valid;
-  valid = validateObjectDependencies.call(this) && valid;
-  return (valid);
+  if (type(this.instance())!=='object') return;
+  validateObjectMinMax.call(this);
+  validateObjectRequired.call(this);
+  validateObjectProperties.call(this);
+  validateObjectDependencies.call(this);
 }
 
 function validateObjectMinMax(){
   var min = this.property('minProperties')
     , max = this.property('maxProperties')
     , keys = objectKeys(this.instance())
-    , valid = true
 
   if (min){
-    valid = this.assert(keys.length >= min, 
-                        "too few properties",
-                        "minProperties"
-                       ) && valid;
+    this.assert(keys.length >= min, 
+                "too few properties",
+                "minProperties",
+                keys.length
+               );
   }
 
   if (max){
-    valid = this.assert(keys.length <= max, 
-                        "too many properties",
-                        "maxProperties"
-                       ) && valid;
+    this.assert(keys.length <= max, 
+                "too many properties",
+                "maxProperties",
+                keys.length
+               );
   }
-
-  return (valid);
 }
 
 function validateObjectRequired(){
   var reqs = this.property('required') || []
     , instance = this.instance()
-    , valid = true
+    , keys = objectKeys(instance)
 
   for (var i=0;i<reqs.length;++i){
-    valid = this.assert(!!has.call(instance,reqs[i]), 
-                        "missing required property",
-                        "required"
-                       ) && valid;
+    this.assert(!!has.call(instance,reqs[i]), 
+                "missing required property",
+                "required",
+                keys
+               );
   }
-  return (valid);
 }
 
 function validateObjectProperties(){
-  var valid = true
-    , count = 0
+  var count = 0
+    , self = this
     , additional = this.property('additionalProperties')
     , additionalSchema = this.get('additionalProperties')
 
   var validatePropContext = function(ctx){
     count++;
-    valid = ctx.validate() && valid;
+    self.assert(ctx.validate(),
+                'a property is not valid'
+               );
   }
 
   for (var key in this.instance()){
@@ -70,29 +69,31 @@ function validateObjectProperties(){
     withPropertyContext.call(this,key,validatePropContext);
     withPatternPropertyContexts.call(this,key,validatePropContext);
 
+    // if no property or patternProperty schema for key
     if (count == 0) {
       if ('boolean' == type(additional)) {
-        valid = this.assert(additional, 
-                            'unknown property',
-                            'additional'
-                           ) && valid
+        this.assert(additional, 
+                    'unknown property',
+                    'additional',
+                    key
+                   );
       }
       if (additionalSchema){
         var ctx = this.subcontext('additionalProperties',key)
-        valid = ctx.validate() && valid
+        this.assert( ctx.validate(),
+                     'an additional property is invalid',
+                     'additionalProperties'
+                   );
       }
     }
   }
-
-  return (valid);
 }
 
 
 function validateObjectDependencies(){
   var deps = this.get('dependencies')
     , instance = this.instance()
-    , valid = true
-  if (!deps) return (valid);
+  if (!deps) return; 
   var self = this
   deps.each( function(key,dep){
     if (!has.call(instance,key)) return;
@@ -101,16 +102,17 @@ function validateObjectDependencies(){
       for (var i=0;i<dep.length;++i){
         if (!has.call(instance,dep[i])) missing.push(dep[i]);
       }
-      valid = self.assert(missing.length == 0,
-                          "has missing dependencies for " + key + ": " + JSON.stringify(missing),
-                          ["dependencies",key].join('/')
-                         ) && valid;
+      self.assert(missing.length == 0,
+                  "has missing dependencies " + JSON.stringify(missing),
+                  ["dependencies",key].join('/')
+                 );
     } else if (dep.nodeType == 'Schema'){
       var ctx = self.subcontext(['dependencies',key].join('/'))
-      valid = ctx.validate() && valid;
+      self.assert( ctx.validate(),
+                   "has invalid dependency"
+                 );
     }
   })
-  return (valid);
 }
 
 // private

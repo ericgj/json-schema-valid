@@ -3,7 +3,6 @@
 var isBrowser = require('is-browser')
   , validate = require('./validate')
   , Context = require('./context')
-  , Emitter = isBrowser ? require('emitter') : require('emitter-component')
   , core = isBrowser ? require('json-schema-core') : require('json-schema-core-component')
   , Schema = core.Schema
   , each = isBrowser ? require('each') : require('each-component')
@@ -38,14 +37,13 @@ Context.prototype.validate = validate;
 
 module.exports = Validator;
 
-function Validator(emitter){
+function Validator(fn){
 
-  if (type(emitter) == 'function'){  // plugin, emitter == Schema
-    plugin(emitter);
+  if (type(fn) == 'function'){  // plugin, fn == Schema
+    plugin(fn);
 
   } else {   // standalone validator
-    if (!(this instanceof Validator)) return new Validator(emitter);
-    this.emitter(emitter);
+    if (!(this instanceof Validator)) return new Validator();
     return this;
 
   }
@@ -61,9 +59,8 @@ Validator.addType = function(key,fn){
   return this;
 }
 
-Validator.prototype.emitter = function(emitter){ 
-  if (arguments.length == 0){ return this._emitter;    }
-  else                      { this._emitter = emitter; }
+Validator.prototype.context = function(){
+  return this._ctx;
 }
 
 
@@ -71,19 +68,16 @@ Validator.prototype.emitter = function(emitter){
  * Standalone validate()
  *
  */
-Validator.prototype.validate = function(schema,instance,desc,fn){
-  if (type(desc)=='function'){
-    fn = desc; desc = undefined;
-  }
+Validator.prototype.validate = function(schema,instance,fn){
   if (!schema) return;
-  var ctx = new Context(schema,instance,desc);
-  Context.emitter(this.emitter());
+  var ctx = new Context(schema,instance);
+  this._ctx = ctx;
   return ctx.validate(fn);
 }
 
-Validator.prototype.validateRaw = function(schema,instance,desc,fn){
+Validator.prototype.validateRaw = function(schema,instance,fn){
   schema = new Schema().parse(schema);
-  return this.validate(schema,instance,desc,fn);
+  return this.validate(schema,instance,fn);
 }
 
 
@@ -112,13 +106,16 @@ function plugin(target){
  *
  * Validates correlation instance against correlation schema.
  *
+ * Note validation errors are inaccessible here; if you need
+ * them, use the standalone validate().
+ *
  * @returns boolean
  *
  */
-function validateBinding(desc,fn){
+function validateBinding(fn){
   if (!this.schema || this.instance === undefined) return;
-  var validator = new Validator(this);
-  return validator.validate(this.schema,this.instance,desc,fn);
+  var validator = new Validator();
+  return validator.validate(this.schema,this.instance,fn);
 }
 
 /*

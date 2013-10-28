@@ -16,8 +16,8 @@ function Context(schema,instance,schemaPath,instancePath,asserts){
 Context.prototype.subcontext = function(schemaPath,instancePath){
   var schema = this.schema()
     , instance = this.instance()
-    , subsch = schemaPath ? schema.getPath(schemaPath) : schema
-    , subinst = instancePath ? getPath(instance,instancePath) : instance
+    , subsch = (schemaPath == undefined) ? schema : schema.getPath(schemaPath)
+    , subinst = (instancePath == undefined) ? instance : getPath(instance,instancePath)
     , subschPath = joinPath(this.schemaPath(),schemaPath)
     , subinstPath = joinPath(this.instancePath(),instancePath)
     , sub = new Context(subsch,subinst,subschPath,subinstPath,this._asserts)
@@ -61,6 +61,7 @@ Context.prototype.assert = function(value, message, prop, actual){
   if (!value && message !== undefined) assert.predicate(message);
   this._valid = value && this._valid;
   this._asserts.push(assert);
+  return this._valid;
 }
 
 Context.prototype.assertions = function(){

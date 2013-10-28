@@ -7,33 +7,29 @@ var isBrowser = require('is-browser')
 module.exports = validateArray;
 
 function validateArray(){
-  var valid = true
-  if (type(this.instance())!=='array') return (valid);
-  valid = validateArrayLength.call(this) && valid;
-  valid = validateArrayUniqueItems.call(this) && valid;
-  valid = validateArrayItems.call(this) && valid;
-  return (valid);
+  if (type(this.instance())!=='array') return;
+  validateArrayLength.call(this);
+  validateArrayUniqueItems.call(this);
+  validateArrayItems.call(this);
 }
 
 function validateArrayLength(){
   var min = this.property('minItems')
     , max = this.property('maxItems')
     , instance = this.instance()
-    , valid = true
 
   if (min){
-    valid = this.assert(instance.length >= min,
-                        "has less than the minimum number of items",
-                        "minItems"
-                       ) && valid;
+    this.assert(instance.length >= min,
+                "has less than the minimum number of items",
+                "minItems"
+               );
   }
   if (max){
-    valid = this.assert(instance.length <= max,
-                        "has greater than the maximum number of items",
-                        "maxItems"
-                       ) && valid;
+    this.assert(instance.length <= max,
+                "has greater than the maximum number of items",
+                "maxItems"
+               );
   }
-  return (valid);
 }
 
 function validateArrayUniqueItems(){
@@ -41,7 +37,7 @@ function validateArrayUniqueItems(){
     , instance = this.instance()
     , match = false
 
-  if (!unique) return (!match);
+  if (!unique) return;
 
   for (var i=0;i<instance.length;++i){
     for (var j=i+1;j<instance.length;++j){
@@ -54,7 +50,6 @@ function validateArrayUniqueItems(){
               "does not contain unique items",
               "uniqueItems"
              );
-  return (!match);
 }
 
 function validateArrayItems(){
@@ -62,31 +57,39 @@ function validateArrayItems(){
     , additional = this.property('additionalItems')
     , additionalSchema = this.get('additionalItems')
     , instance = this.instance()
-    , valid = true;
-  if (!items) return (valid);
+  if (!items) return;
   if (items.nodeType == 'SchemaArray'){
     for (var i=0;i<instance.length;++i){
       var schema = items.get(i)
       if (schema){
         var ctx = this.subcontext(['items',i].join('/'),i)
-        valid = ctx.validate() && valid;
+        this.assert( ctx.validate(),
+                     "an item is invalid",
+                     "items"
+                   );
       } else if (type(additional)=='boolean') {
-        valid = this.assert(additional,
-                            "contains additional items",
-                            "additionalItems"
-                           ) && valid;
+        this.assert(additional,
+                    "contains additional items",
+                    "additionalItems",
+                    true
+                   );
       } else if (additionalSchema){
         var ctx = this.subcontext('additionalItems',i)
-        valid = ctx.validate() && valid;
+        this.assert( ctx.validate(),
+                     "an additional item is invalid",
+                     "additionalSchema"
+                   );
       }
     }
   } else if (items.nodeType == 'Schema') {
      for (var i=0;i<instance.length;++i){
        var ctx = this.subcontext('items',i)
-       valid = ctx.validate() && valid
+       this.assert( ctx.validate(),
+                    "an item is invalid",
+                    "items"
+                  );
      }
   }
-  return (valid);
 }
 
 

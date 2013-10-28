@@ -9,21 +9,22 @@ module.exports = validateEnum;
 function validateEnum(){
   var values = this.property('enum')
     , instance = this.instance()
-    , valid = true
 
-  if (!values) return (valid);
-  valid = this.assert(type(values)=='array',
-                      "specified enum is not an array",
-                      "enum"
-                     ) && valid
+  if (!values) return;
 
-  if (!valid) return (valid);
+  var isarr = type(values)=='array';
+  this.assert(isarr,
+              "specified enum is not an array"
+             );
+  if (!isarr) return;
 
   var found = false;
   for (var i=0;i<values.length;++i){
     if (deepEqual(values[i],instance)){ found = true; break; }
   }
-  valid = this.assert(found, "not a valid value", "enum") && valid;
-  return (valid);
+  this.assert(found, 
+              "not a valid value", 
+              "enum"
+             );
 }
 

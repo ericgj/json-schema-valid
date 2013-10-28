@@ -7,6 +7,7 @@ var isBrowser = require('is-browser')
   , each = isBrowser ? require('each') : require('each-component')
   , core = isBrowser ? require('json-schema-core') : require('json-schema-core-component')
   , validationPlugin = isBrowser ? require('json-schema-valid') : require('json-schema-valid-component')
+  , Validator = validationPlugin
   , hyperPlugin = isBrowser ? require('json-schema-hyper') : require('json-schema-hyper-component')
   , Schema = core.Schema
 
@@ -59,27 +60,26 @@ function genTests(obj){
     var schema = new Schema().parse(obj.schema)
 
     each(obj.tests, function(testcase){
-    //for (var i=0;i<obj.tests.length;++i){
-    //  var testcase = obj.tests[i]
       var exp = testcase.valid
         , instance = testcase.data
-        , subject = schema.bind(instance)
 
-      console.log(testcase.description + ' : %o , expected: %s', [subject.schema, subject.instance], exp);
-
-      subject.on('error', function(e){
-        console.error('  %s , %s , error: %o', e.context, e.message, e);
-      });
-
-      subject.on('debug', function(data){
-        console.log('  %s , %s , debug: %o', data.context, data.message, data);
-      })
+      console.log(testcase.description + ' : %o , expected: %s', [obj.schema, instance], exp);
 
       it(testcase.description, function(){
-        // this is a kludge to get around scoping issues
-        schema.addProperty('description', obj.description + " :: " + testcase.description);
-        // var desc = obj.description + " :: " + testcase.description;
-        assert(exp == subject.validate());
+        var validator = new Validator()
+          , act = validator.validate(schema,instance)
+
+        ////// This is strictly for debugging. If all tests pass, none of this will output.
+        if (exp !== act){
+          console.error(testcase.description + ' : %o , expected: %s', [obj.schema, instance], exp);
+          var trace = validator.context().trace()
+          for (var i=0;i<trace.length;++i){
+            console.log("  " + trace[i]);
+          }
+        }
+        //////
+
+        assert(exp == act);
       })
     })
   })

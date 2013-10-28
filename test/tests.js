@@ -21,33 +21,23 @@ describe('json-schema-valid: additional tests', function(){
     it('should validate and handle errors', function(){
       var schema = new Schema().parse({ minItems: 3 })
         , instance = [1,2]
-        , listener = new Emitter()
-        , errcount = 0
-        , debugcount = 0
       
-      listener.on('error', function(e){ errcount++; });
-      listener.on('debug', function(e){ debugcount++; });
-
-      var act = validationPlugin(listener).validate(schema,instance); 
-      assert(act === false);
-      assert(errcount == 1);
-      assert(debugcount > 0);
+      var validator = validationPlugin()
+      validator.validate(schema,instance); 
+      var act = validator.context();
+      assert(act.valid() === false);
+      assert(act.errors().value().length == 1);
     })
 
     it('should validate from raw schema', function(){
       var schema = { minItems: 3 }
         , instance = [1,2]
-        , listener = new Emitter()
-        , errcount = 0
-        , debugcount = 0
       
-      listener.on('error', function(e){ errcount++; });
-      listener.on('debug', function(e){ debugcount++; });
-
-      var act = validationPlugin(listener).validateRaw(schema,instance); 
-      assert(act === false);
-      assert(errcount == 1);
-      assert(debugcount > 0);
+      var validator = validationPlugin()
+      validator.validateRaw(schema,instance); 
+      var act = validator.context();
+      assert(act.valid() === false);
+      assert(act.errors().value().length == 1);
     })
 
   })
