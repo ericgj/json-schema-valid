@@ -1,6 +1,6 @@
 {
   "name": "json-schema-valid-component",
-  "version": "0.0.14",
+  "version": "0.1.1",
   "description": "JSON Schema validator",
   "main": "index.js",
   "directories": {
@@ -15,8 +15,6 @@
     "each-component": "https://github.com/component/each/tarball/master",  
     "component-type": "https://github.com/component/type/tarball/master",
     "indexof-component": "https://github.com/component/indexof/tarball/master",  
-    "emitter-component": "https://github.com/component/emitter/tarball/master",  
-    "enumerable-component": "https://github.com/component/enumerable/tarball/master",  
     "is-browser": "https://github.com/forbeslindesay/is-browser/tarball/master"
   },
   "devDependencies": {

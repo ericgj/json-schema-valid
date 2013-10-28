@@ -2,7 +2,6 @@
 
 var isBrowser = require('is-browser')
   , assert = require('assert')
-  , Emitter = isBrowser ? require('emitter') : require('emitter-component')
   , type = isBrowser ? require('type') : require('component-type')
   , each = isBrowser ? require('each') : require('each-component')
   , core = isBrowser ? require('json-schema-core') : require('json-schema-core-component')

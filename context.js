@@ -1,7 +1,6 @@
 'use strict';
 
-var Enumerable = require('enumerable')
-  , has = hasOwnProperty
+var has = hasOwnProperty
 
 module.exports = Context;
 

@@ -25,25 +25,15 @@ npm:
 
 ## Examples
 
-  There are two basic modes: as a _simple function_, and as a _Correlation
+  There are two basic modes: as a _validator object_, and as a _Correlation
   binding_.
 
-  In either case, the `validate()` function returns boolean, and an
-  [Emitter][emitter] is used for error handling (optional).
-
-  __Simple function__:
+  __Validator object__:
   
 ```javascript
   var Validator = require('json-schema-valid')
-    , Emitter = require('emitter')
 
-  // error handling via external emitter
-  var emitter = new Emitter();
-  emitter.on('error', function(e){
-    console.error('Error: %o', e);
-  })
-
-  var validator = new Validator(emitter)
+  var validator = new Validator()
 
   // if schema has already been parsed
   var valid = validator.validate(schema,instance);
@@ -51,6 +41,12 @@ npm:
   // if raw schema object
   var valid = validator.validateRaw(rawSchema,instance);
   
+  // checking state
+  validator.valid();           // boolean
+  validator.errors();          // tree structure of validation errors 
+  validator.errorTrace();      // array of error messages with indented levels
+  validator.assertionTrace();  // array of all assertions made on instance
+
 ```
 
   __Correlation binding__:
@@ -64,13 +60,7 @@ npm:
   // attach plugin to Schema 
   Schema.use(plugin);
 
-  // once you have a correlation, you can listen for errors and
-  // call validate() on it
-
-  correlation.on('error', function(e){
-    console.error('Error: %o', e);
-  })
-
+  // once you have a correlation, you can call validate() on it
   var valid = correlation.validate();
 
   // subschema for given instance property
@@ -80,7 +70,15 @@ npm:
   // resolved URI-template links, including for valid combination conditions
   var links = correlation.links();
 
+  // coerced instance (i.e., type and defaults applied to copy of instance)
+  var coerced = correlation.coerce().instance;
+
 ```
+
+Note that assertion state beyond valid/invalid (`errors()`, `errorTrace()`, 
+`assertionTrace()`, etc.) is _not_ currently available using the correlation
+binding mode.
+
 
 ## API
 
@@ -95,6 +93,29 @@ npm:
 ### Validator.prototype.validateRaw( schema:Object, instance:Object, [desc:String], [callback:Function] )
 
   Validate given instance against given raw schema (parsing schema first).
+
+### Validator.prototype.valid()
+
+  Result of the last `validate()` call (boolean).
+
+### Validator.prototype.errors()
+
+  If the last `validate()` call returned false (invalid), then returns a tree of
+  context objects of the form `{ assertions: [ ], contexts: [ ] }`, where
+  `assertions` contains assertion (error) objects, and `contexts` contains other
+  context objects.
+
+  This structure can be used to build custom error messaging.
+
+### Validator.prototype.errorTrace()
+
+  If the last `validate()` call returned false (invalid), then returns an array
+  of error messages for invalid branches, indented according to context level.
+
+### Validator.prototype.assertionTrace()
+
+  Returns array of assertion messages for all validated branches of the last
+  `validate()` call (regardless of whether valid or invalid).
 
 ### Validator.addType( key:String, validator:Function )
 
@@ -134,7 +155,19 @@ npm:
 
   See `test/tests.js` for usage examples. 
 
- 
+### Correlation#coerce()
+
+  Validate, and coerces instance (applies type and default) according to:
+    
+    1.  the first valid schema that specifies either `type` or `default` or 
+        both;
+    2.  the "top-level schema", otherwise
+
+  Note that the ordering of valid schemas cannot be relied on, so it is
+  recommended that either the top-level schema specify type and/or default, or
+  _only one_ combination schema specify these.
+
+
 ## Running tests
 
 In browser:
@@ -174,8 +207,8 @@ In node:
 
   - add common format validators
   - make error data compatible with [tv4][tv4] errors
-  - consider emitting schema-level errors or 'error trees' / rework internal
-    Context objects
+  - <del>consider emitting schema-level errors or 'error trees' / rework internal
+    Context objects</del>
   - more complete walk-through of how to use with json-schema-hyper,
     json-schema-agent, etc. (add to json-schema-suite).
   - bower <del>and npm</del> installation

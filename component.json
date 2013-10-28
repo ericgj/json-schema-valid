@@ -2,12 +2,10 @@
   "name": "json-schema-valid",
   "repo": "ericgj/json-schema-valid",
   "description": "JSON Schema validator",
-  "version": "0.0.14",
+  "version": "0.1.1",
   "keywords": [],
   "dependencies": {
     "ericgj/json-schema-core": "*",
-    "component/emitter": "*",
-    "component/enumerable": "*",
     "component/type": "*",
     "component/indexof": "*",
     "component/each": "*",

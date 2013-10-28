@@ -2,7 +2,6 @@
 
 var isBrowser = require('is-browser')
   , assert = require('assert')
-  , Emitter = isBrowser ? require('emitter') : require('emitter-component')
   , core = isBrowser ? require('json-schema-core') : require('json-schema-core-component')
   , validationPlugin = isBrowser ? require('json-schema-valid') : require('json-schema-valid-component')
   , Validator = validationPlugin
