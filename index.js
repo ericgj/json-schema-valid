@@ -78,6 +78,11 @@ Validator.prototype.errorTrace = function(){
   return ctx && ctx.errorTrace();
 }
 
+Validator.prototype.assertionTrace = function(){
+  var ctx = this.context()
+  return ctx && ctx.assertionTrace();
+}
+
 /******************************** 
  * Standalone validate()
  *

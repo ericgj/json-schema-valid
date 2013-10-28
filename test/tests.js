@@ -28,10 +28,13 @@ describe('json-schema-valid: additional tests', function(){
       var act = validator.context();
       console.log('simple usage: %o', act);
       assert(act.valid() === false);
-      act.errors().each( function(e){
-        console.log('  '+e.message);
-      })
-      assert(act.errors().value().length > 0);
+      console.log('simple usage errors: %o', act.errors());
+      var trace = act.errorTrace()
+      assert(trace);
+      assert(trace.length > 0);
+      for (var i=0;i<trace.length;++i){
+        console.log('  '+trace[i]);
+      };
     })
 
     it('should validate from raw schema', function(){
@@ -42,7 +45,8 @@ describe('json-schema-valid: additional tests', function(){
       validator.validateRaw(schema,instance); 
       var act = validator.context();
       assert(act.valid() === false);
-      assert(act.errors().value().length > 0);
+      assert(act.errorTrace());
+      assert(act.errorTrace().length > 0);
     })
 
   })
@@ -227,10 +231,13 @@ describe('json-schema-valid: additional tests', function(){
       validator.validate(schema,inst);
       assert(validator.valid());
       console.log('context anyOf valid: %o', validator.errors());
-      validator.errors().each( function(e){
-        console.log('  '+e.message);
-      });
-      assert(validator.errors().value().length == 0);
+      var trace = validator.errorTrace()
+      assert(!trace);
+      console.log('context anyOf valid: full assertion trace');
+      trace = validator.assertionTrace()
+      for (var i=0;i<trace.length;++i){
+        console.log('  '+trace[i]);
+      };
     })
 
     it('errors should not include internal anyOf combination errors when context is invalid due to other conditions', function(){
@@ -240,10 +247,17 @@ describe('json-schema-valid: additional tests', function(){
       validator.validate(schema,inst);
       assert(!validator.valid());
       console.log('context anyOf invalid: %o', validator.errors());
-      validator.errors().each( function(e){
-        console.log('  '+e.message);
-      });
-      assert(validator.errors().value().length == 2);
+      var trace = validator.errorTrace()
+      for (var i=0;i<trace.length;++i){
+        console.log('  '+trace[i]);
+      };
+      assert(trace);
+      assert(trace.length == 2);
+      console.log('context anyOf invalid: full assertion trace');
+      trace = validator.assertionTrace()
+      for (var i=0;i<trace.length;++i){
+        console.log('  '+trace[i]);
+      };
     })
 
     

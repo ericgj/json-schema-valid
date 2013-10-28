@@ -5,10 +5,11 @@ var Enumerable = require('enumerable')
 
 module.exports = Context;
 
-function Context(schema,instance,schemaPath,instancePath,asserts){
+function Context(schema,instance,schemaPath,instancePath){
   this._schema = schema; this._instance = instance;
   this._schemaPath = schemaPath; this._instancePath = instancePath;
-  this._asserts = asserts || [];
+  this._asserts = [];
+  this._ctxs = [];
   this._valid = true;
   return this;
 }
@@ -20,7 +21,8 @@ Context.prototype.subcontext = function(schemaPath,instancePath){
     , subinst = (instancePath == undefined) ? instance : getPath(instance,instancePath)
     , subschPath = joinPath(this.schemaPath(),schemaPath)
     , subinstPath = joinPath(this.instancePath(),instancePath)
-    , sub = new Context(subsch,subinst,subschPath,subinstPath,this._asserts)
+    , sub = new Context(subsch,subinst,subschPath,subinstPath)
+  this._ctxs.push(sub);
   return sub;
 }
 
@@ -60,42 +62,69 @@ Context.prototype.assert = function(value, message, prop, actual){
   if (prop !== undefined) assert.property(prop);
   if (!value && message !== undefined) assert.predicate(message);
   this._valid = value && this._valid;
-  this._asserts.unshift(assert);
+  this._asserts.push(assert);
   return this._valid;
 }
 
 Context.prototype.assertions = function(){
-  return Enumerable(this._asserts).map('toObject()');
+  return this._asserts;
+}
+
+Context.prototype.subcontexts = function(){
+  return this._ctxs;
 }
 
 Context.prototype.errors = function(){
-  var valid = this.valid();
-  var select = Enumerable(this._asserts).reduce( function(accum,a){
-      valid = valid || a.contextValid()
-      if (valid) return accum;
-      if (!a.valid()) accum.push(a.toObject());
-      return accum;
-    }, 
-    []
+  return this.assertionTree( 
+    function(ctx)    { return !ctx.valid(); },
+    function(assert) { return !(assert.valid || assert.contextValid); }
   );
-  return Enumerable(select);
 }
 
-Context.prototype.trace = function(selectfn){
-  return this.assertions().reduce( 
-    function(accum,a){
-      if (selectfn && !selectfn(a)) return accum;
-      accum.push(a.message);
-      return accum;
-    },
-    []
-  );
+Context.prototype.assertionTree = function(ctxfn,assertfn){
+  if (ctxfn && !ctxfn(this)) return;
+  var ret = { assertions: [], contexts: [] }
+    , asserts = this.assertions()
+    , ctxs = this.subcontexts()
+  for (var i=0;i<asserts.length;++i){
+    var a = asserts[i].toObject()
+    if (!assertfn || assertfn(a)) ret.assertions.push(a);
+  }
+  for (var i=0;i<ctxs.length;++i){
+    var tree = ctxs[i].assertionTree(ctxfn,assertfn)
+    if (tree) ret.contexts.push( tree );
+  }
+  return ret;
 }
 
 Context.prototype.errorTrace = function(){
-  return this.trace( function(a){
-    return !(a.contextValid || a.valid);
-  });
+  var errs = this.errors()
+  if (!errs) return;
+  return assertionTrace.call(errs);
+}
+
+Context.prototype.assertionTrace = function(){
+  var asserts = this.assertionTree()
+  if (!asserts) return;
+  return assertionTrace.call(asserts);
+}
+
+
+// private, bind to assertionTree object
+// probably should be extracted to its own prototype once pinned down a bit more
+function assertionTrace(accum,level){
+  accum = accum || [];
+  level = level || 0;
+  for (var i=0;i<this.assertions.length;++i){
+    accum.push( repeatString(' ', level * 2) + this.assertions[i].message );
+  }
+  level++;
+  for (var i=0;i<this.contexts.length;++i){
+    var ctx = this.contexts[i]
+    assertionTrace.call(ctx,accum,level);
+  }
+  level--;
+  return accum;
 }
 
 
@@ -194,10 +223,10 @@ Assertion.prototype.toObject = function(){
 // utils
 
 function joinPath(p1,p2){
-  if (!(p1 || p2)) return;
+  if (p1 == undefined && p2 == undefined) return;
   var segments = []; 
-  if (p1) segments.push.apply(segments,p1.toString().split('/'));
-  if (p2) segments.push.apply(segments,p2.toString().split('/'));
+  if (p1 !== undefined) segments.push.apply(segments,p1.toString().split('/'));
+  if (p2 !== undefined) segments.push.apply(segments,p2.toString().split('/'));
   return segments.join('/');
 }
 
