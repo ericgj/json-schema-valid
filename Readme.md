@@ -103,7 +103,7 @@ binding mode.
   If the last `validate()` call returned false (invalid), then returns a tree of
   context objects of the form `{ assertions: [ ], contexts: [ ] }`, where
   `assertions` contains assertion (error) objects, and `contexts` contains other
-  context objects.
+  (sub-)context objects.
 
   This structure can be used to build custom error messaging.
 
@@ -162,6 +162,7 @@ binding mode.
   1.  the first valid schema that specifies either `type` or `default` or 
       both;
   2.  the "top-level schema", otherwise
+
 
   Note that the ordering of valid schemas cannot be relied on, so it is
   recommended that either the top-level schema specify type and/or default, or
