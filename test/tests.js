@@ -5,6 +5,7 @@ var isBrowser = require('is-browser')
   , Emitter = isBrowser ? require('emitter') : require('emitter-component')
   , core = isBrowser ? require('json-schema-core') : require('json-schema-core-component')
   , validationPlugin = isBrowser ? require('json-schema-valid') : require('json-schema-valid-component')
+  , Validator = validationPlugin
   , hyperPlugin = isBrowser ? require('json-schema-hyper') : require('json-schema-hyper-component')
   , Schema = core.Schema
 
@@ -25,8 +26,12 @@ describe('json-schema-valid: additional tests', function(){
       var validator = validationPlugin()
       validator.validate(schema,instance); 
       var act = validator.context();
+      console.log('simple usage: %o', act);
       assert(act.valid() === false);
-      assert(act.errors().value().length == 1);
+      act.errors().each( function(e){
+        console.log('  '+e.message);
+      })
+      assert(act.errors().value().length > 0);
     })
 
     it('should validate from raw schema', function(){
@@ -37,7 +42,7 @@ describe('json-schema-valid: additional tests', function(){
       validator.validateRaw(schema,instance); 
       var act = validator.context();
       assert(act.valid() === false);
-      assert(act.errors().value().length == 1);
+      assert(act.errors().value().length > 0);
     })
 
   })
@@ -215,6 +220,32 @@ describe('json-schema-valid: additional tests', function(){
 
   describe('context', function(){
  
+    it('errors should not include anyOf combination errors when context is valid', function(){
+      var schema = new Schema().parse(fixtures.context.schema.anyof)
+        , inst = fixtures.context.instance.anyofvalid
+        , validator = new Validator()
+      validator.validate(schema,inst);
+      assert(validator.valid());
+      console.log('context anyOf valid: %o', validator.errors());
+      validator.errors().each( function(e){
+        console.log('  '+e.message);
+      });
+      assert(validator.errors().value().length == 0);
+    })
+
+    it('errors should not include internal anyOf combination errors when context is invalid due to other conditions', function(){
+      var schema = new Schema().parse(fixtures.context.schema.nestedanyof)
+        , inst = fixtures.context.instance.nestedanyofinvalid
+        , validator = new Validator()
+      validator.validate(schema,inst);
+      assert(!validator.valid());
+      console.log('context anyOf invalid: %o', validator.errors());
+      validator.errors().each( function(e){
+        console.log('  '+e.message);
+      });
+      assert(validator.errors().value().length == 2);
+    })
+
     
   })
 
@@ -436,3 +467,64 @@ fixtures.coerce.instance.falseval = false;
 
 fixtures.context = {}
 fixtures.context.schema = {}
+fixtures.context.schema.anyof = {
+  type: 'array',
+  items: {
+    anyOf: [
+      {
+        properties: {
+          one: { type: 'string'},
+        },
+        required: ["one"]
+      },
+      {
+        properties: {
+          two: { type: 'integer'}
+        },
+        required: ["two"]
+      },
+      {
+        properties: {
+          three: { type: 'boolean'}
+        },
+        required: ["three"]
+      }
+    ]
+  }
+}
+
+fixtures.context.schema.nestedanyof = {
+  type: 'object',
+  properties: {
+    one: {
+      type: 'number',
+      anyOf: [
+        {
+          minimum: 10
+        },
+        {
+          maximum: 3
+        }
+      ]
+    },
+    two: { type: 'number' }
+  },
+  required: ["one","two"]
+}
+
+
+fixtures.context.instance = {};
+fixtures.context.instance.anyofvalid = [
+  { one: true, two: false, three: true},
+  { one: 1, two: 2, three: 3 },
+  { one: "1", two: "2", three: "3"}
+]
+
+fixtures.context.instance.nestedanyofinvalid = {
+  "one": 11,
+  "two": "string, not a number"
+}
+
+
+
+

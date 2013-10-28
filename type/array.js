@@ -21,13 +21,15 @@ function validateArrayLength(){
   if (min){
     this.assert(instance.length >= min,
                 "has less than the minimum number of items",
-                "minItems"
+                "minItems",
+                instance.length
                );
   }
   if (max){
     this.assert(instance.length <= max,
                 "has greater than the maximum number of items",
-                "maxItems"
+                "maxItems",
+                instance.length
                );
   }
 }
@@ -64,7 +66,7 @@ function validateArrayItems(){
       if (schema){
         var ctx = this.subcontext(['items',i].join('/'),i)
         this.assert( ctx.validate(),
-                     "an item is invalid",
+                     "item " + i + " is invalid",
                      "items"
                    );
       } else if (type(additional)=='boolean') {
@@ -76,7 +78,7 @@ function validateArrayItems(){
       } else if (additionalSchema){
         var ctx = this.subcontext('additionalItems',i)
         this.assert( ctx.validate(),
-                     "an additional item is invalid",
+                     "additional item " + i + " is invalid",
                      "additionalSchema"
                    );
       }
@@ -85,7 +87,7 @@ function validateArrayItems(){
      for (var i=0;i<instance.length;++i){
        var ctx = this.subcontext('items',i)
        this.assert( ctx.validate(),
-                    "an item is invalid",
+                    "item " + i + " is invalid",
                     "items"
                   );
      }

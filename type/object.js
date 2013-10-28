@@ -56,10 +56,10 @@ function validateObjectProperties(){
     , additional = this.property('additionalProperties')
     , additionalSchema = this.get('additionalProperties')
 
-  var validatePropContext = function(ctx){
+  var validatePropContext = function(ctx,prop){
     count++;
     self.assert(ctx.validate(),
-                'a property is not valid'
+                'property "'+ prop + '" is not valid'
                );
   }
 
@@ -122,7 +122,7 @@ function withPropertyContext(key,fn){
     , prop = props && props.get(key)
   if (!prop) return;
   var ctx = this.subcontext(['properties',key].join('/'),key);
-  fn(ctx);
+  fn(ctx,key);
 }
 
 function withPatternPropertyContexts(key,fn){
@@ -133,7 +133,7 @@ function withPatternPropertyContexts(key,fn){
     var matcher = new RegExp(rx);
     if (matcher.test(key)){
       var ctx = self.subcontext(['patternProperties',rx].join('/'),key);
-      fn(ctx);
+      fn(ctx,key);
     }
   });
 }

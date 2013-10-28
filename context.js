@@ -60,7 +60,7 @@ Context.prototype.assert = function(value, message, prop, actual){
   if (prop !== undefined) assert.property(prop);
   if (!value && message !== undefined) assert.predicate(message);
   this._valid = value && this._valid;
-  this._asserts.push(assert);
+  this._asserts.unshift(assert);
   return this._valid;
 }
 
@@ -69,9 +69,16 @@ Context.prototype.assertions = function(){
 }
 
 Context.prototype.errors = function(){
-  return this.assertions().select(function(a){
-    return !(a.contextValid || a.valid);
-  });
+  var valid = this.valid();
+  var select = Enumerable(this._asserts).reduce( function(accum,a){
+      valid = valid || a.contextValid()
+      if (valid) return accum;
+      if (!a.valid()) accum.push(a.toObject());
+      return accum;
+    }, 
+    []
+  );
+  return Enumerable(select);
 }
 
 Context.prototype.trace = function(selectfn){
@@ -82,7 +89,7 @@ Context.prototype.trace = function(selectfn){
       return accum;
     },
     []
-  ).reverse();
+  );
 }
 
 Context.prototype.errorTrace = function(){
@@ -145,10 +152,10 @@ Assertion.prototype.message = function(){
     , predicate = this.predicate()
     , instPath = context.instancePath()
   var ret = []
-  if (instPath) ret.push(instPath);
-  if (prop) ret.push(prop);
+  if (instPath !== undefined) ret.push(instPath);
+  if (prop !== undefined) ret.push(prop);
   ret.push( valid ? "valid" : "invalid" )
-  if (predicate){
+  if (predicate !== undefined){
     ret.push(":");
     ret.push(predicate);
   }
