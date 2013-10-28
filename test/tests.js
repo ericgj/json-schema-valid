@@ -213,6 +213,11 @@ describe('json-schema-valid: additional tests', function(){
 
   })
 
+  describe('context', function(){
+ 
+    
+  })
+
 })
     
 
@@ -428,3 +433,6 @@ fixtures.coerce.instance.array = [
 
 fixtures.coerce.instance.falseval = false;
 
+
+fixtures.context = {}
+fixtures.context.schema = {}

@@ -63,6 +63,20 @@ Validator.prototype.context = function(){
   return this._ctx;
 }
 
+Validator.prototype.valid = function(){
+  var ctx = this.context()
+  return ctx && ctx.valid();
+}
+
+Validator.prototype.errors = function(){
+  var ctx = this.context()
+  return ctx && ctx.errors();
+}
+
+Validator.prototype.errorTrace = function(){
+  var ctx = this.context()
+  return ctx && ctx.errorTrace();
+}
 
 /******************************** 
  * Standalone validate()
