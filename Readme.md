@@ -159,9 +159,9 @@ binding mode.
 
   Validate, and coerces instance (applies type and default) according to:
     
-    1.  the first valid schema that specifies either `type` or `default` or 
-        both;
-    2.  the "top-level schema", otherwise
+  1.  the first valid schema that specifies either `type` or `default` or 
+      both;
+  2.  the "top-level schema", otherwise
 
   Note that the ordering of valid schemas cannot be relied on, so it is
   recommended that either the top-level schema specify type and/or default, or
