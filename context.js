@@ -73,58 +73,125 @@ Context.prototype.subcontexts = function(){
   return this._ctxs;
 }
 
-Context.prototype.errors = function(){
-  return this.assertionTree( 
-    function(ctx)    { return !ctx.valid(); },
-    function(assert) { return !(assert.valid || assert.contextValid); }
+Context.prototype.assertionTree = function(){
+  return new AssertionTree(this);
+}
+
+Context.prototype.error = function(){
+  var tree = this.errorTree()
+  return tree && tree.toError();
+}
+
+Context.prototype.errorTree = function(){
+  if (this.valid()) return;
+  return this.assertionTree().errorTree();
+}
+
+Context.prototype.assertionTrace = function(){
+  return this.assertionTree().trace();
+}
+
+Context.prototype.errorTrace = function(){
+  var tree = this.errorTree()
+  return tree && tree.trace();
+}
+
+
+function AssertionTree(context){
+  if (!(this instanceof AssertionTree)) return new AssertionTree();
+  this._assertions = [];
+  this._branches = [];
+  this._valid = undefined;
+  if (context) this.parse(context);
+  return this;
+}
+
+AssertionTree.prototype.valid = function(){
+  return this._valid;
+}
+
+AssertionTree.prototype.assertions = function(){
+  return this._assertions;
+}
+
+AssertionTree.prototype.branches = function(){
+  return this._branches;
+}
+
+AssertionTree.prototype.addAssertion = function(assertion){
+  this._assertions.push(assertion);
+  return this;
+}
+
+AssertionTree.prototype.addBranch = function(tree){
+  this._branches.push(tree);
+  return this;
+}
+
+AssertionTree.prototype.errorTree = function(){
+  return this.select(
+    function(tree){ return !tree.valid() },
+    function(a)   { return !(a.valid || a.contextValid); }
   );
 }
 
-Context.prototype.assertionTree = function(ctxfn,assertfn){
-  if (ctxfn && !ctxfn(this)) return;
-  var ret = { assertions: [], contexts: [] }
-    , asserts = this.assertions()
-    , ctxs = this.subcontexts()
+AssertionTree.prototype.toError = function(){
+  var msgs = this.errorTree().trace()
+  if (msgs.length == 0) return;
+  var err = new Error(msgs[0]);
+  err.trace = msgs;
+  return err;
+}
+
+AssertionTree.prototype.parse = function(ctx){
+  this._valid = ctx.valid();
+  var asserts = ctx.assertions()
+    , ctxs = ctx.subcontexts()
   for (var i=0;i<asserts.length;++i){
-    var a = asserts[i].toObject()
-    if (!assertfn || assertfn(a)) ret.assertions.push(a);
+    var assert = asserts[i].toObject()
+    this.addAssertion(assert);
   }
   for (var i=0;i<ctxs.length;++i){
-    var tree = ctxs[i].assertionTree(ctxfn,assertfn)
-    if (tree) ret.contexts.push( tree );
+    var tree = new AssertionTree(ctxs[i])
+    this.addBranch(tree);
+  }
+  return this;
+}
+
+AssertionTree.prototype.select = function(branchfn,assertfn){
+  if (branchfn && !branchfn(this)) return;
+  var ret = new AssertionTree();
+  var asserts = this.assertions()
+    , branches = this.branches()
+  for (var i=0;i<asserts.length;++i){
+    var assert = asserts[i]
+    if (!assertfn || assertfn(assert)) ret.addAssertion(assert);
+  }
+  for (var i=0;i<branches.length;++i){
+    var tree = branches[i]
+      , filtered = tree.select(branchfn,assertfn);
+    if (filtered) ret.addBranch(filtered);
   }
   return ret;
 }
 
-Context.prototype.errorTrace = function(){
-  var errs = this.errors()
-  if (!errs) return;
-  return assertionTrace.call(errs);
-}
-
-Context.prototype.assertionTrace = function(){
-  var asserts = this.assertionTree()
-  if (!asserts) return;
-  return assertionTrace.call(asserts);
-}
-
-
-// private, bind to assertionTree object
-// probably should be extracted to its own prototype once pinned down a bit more
-function assertionTrace(accum,level){
+AssertionTree.prototype.trace = function(accum,level){
   accum = accum || [];
   level = level || 0;
-  for (var i=0;i<this.assertions.length;++i){
-    accum.push( repeatString(' ', level * 2) + this.assertions[i].message );
+  var asserts = this.assertions()
+    , branches = this.branches()
+  for (var i=0;i<asserts.length;++i){
+    accum.push( repeatString(' ', level * 2) + asserts[i].message );
   }
   level++;
-  for (var i=0;i<this.contexts.length;++i){
-    var ctx = this.contexts[i]
-    assertionTrace.call(ctx,accum,level);
+  for (var i=0;i<branches.length;++i){
+    var tree = branches[i]
+    tree.trace(accum,level);
   }
   level--;
   return accum;
 }
+
 
 
 

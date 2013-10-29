@@ -27,7 +27,7 @@ describe('json-schema-valid: additional tests', function(){
       var act = validator.context();
       console.log('simple usage: %o', act);
       assert(act.valid() === false);
-      console.log('simple usage errors: %o', act.errors());
+      console.log('simple usage errors: %o', act.errorTree());
       var trace = act.errorTrace()
       assert(trace);
       assert(trace.length > 0);
@@ -229,7 +229,7 @@ describe('json-schema-valid: additional tests', function(){
         , validator = new Validator()
       validator.validate(schema,inst);
       assert(validator.valid());
-      console.log('context anyOf valid: %o', validator.errors());
+      console.log('context anyOf valid: %o', validator.errorTree());
       var trace = validator.errorTrace()
       assert(!trace);
       console.log('context anyOf valid: full assertion trace');
@@ -239,13 +239,23 @@ describe('json-schema-valid: additional tests', function(){
       };
     })
 
+    it('error should be undefined when context is valid', function(){
+      var schema = new Schema().parse(fixtures.context.schema.anyof)
+        , inst = fixtures.context.instance.anyofvalid
+        , validator = new Validator()
+      validator.validate(schema,inst);
+      assert(validator.valid());
+      var e = validator.error()
+      assert(e === undefined);
+    })
+
     it('errors should not include internal anyOf combination errors when context is invalid due to other conditions', function(){
       var schema = new Schema().parse(fixtures.context.schema.nestedanyof)
         , inst = fixtures.context.instance.nestedanyofinvalid
         , validator = new Validator()
       validator.validate(schema,inst);
       assert(!validator.valid());
-      console.log('context anyOf invalid: %o', validator.errors());
+      console.log('context anyOf invalid: %o', validator.errorTree());
       var trace = validator.errorTrace()
       for (var i=0;i<trace.length;++i){
         console.log('  '+trace[i]);
@@ -259,7 +269,19 @@ describe('json-schema-valid: additional tests', function(){
       };
     })
 
-    
+    it('error should be defined when context is invalid', function(){
+      var schema = new Schema().parse(fixtures.context.schema.nestedanyof)
+        , inst = fixtures.context.instance.nestedanyofinvalid
+        , validator = new Validator()
+      validator.validate(schema,inst);
+      assert(!validator.valid());
+      var e = validator.error();
+      var trace = validator.errorTrace();
+      console.log('context anyOf invalid error object: %o', e);
+      assert(e);
+      assert(e.message == trace[0]);
+    })
+
   })
 
 })

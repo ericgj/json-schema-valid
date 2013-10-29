@@ -68,9 +68,14 @@ Validator.prototype.valid = function(){
   return ctx && ctx.valid();
 }
 
-Validator.prototype.errors = function(){
+Validator.prototype.error = function(){
   var ctx = this.context()
-  return ctx && ctx.errors();
+  return ctx && ctx.error();
+}
+
+Validator.prototype.errorTree = function(){
+  var ctx = this.context()
+  return ctx && ctx.errorTree();
 }
 
 Validator.prototype.errorTrace = function(){
