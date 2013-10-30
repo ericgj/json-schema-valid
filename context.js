@@ -118,6 +118,10 @@ AssertionTree.prototype.branches = function(){
   return this._branches;
 }
 
+AssertionTree.prototype.setValid = function(value){
+  this._valid = value;
+}
+
 AssertionTree.prototype.addAssertion = function(assertion){
   this._assertions.push(assertion);
   return this;
@@ -136,10 +140,13 @@ AssertionTree.prototype.errorTree = function(){
 }
 
 AssertionTree.prototype.toError = function(){
-  var msgs = this.errorTree().trace()
+  var tree = this.errorTree()
+  if (!tree) return;
+  var msgs = tree.trace()
   if (msgs.length == 0) return;
   var err = new Error(msgs[0]);
   err.trace = msgs;
+  err.tree = tree;
   return err;
 }
 
@@ -161,6 +168,7 @@ AssertionTree.prototype.parse = function(ctx){
 AssertionTree.prototype.select = function(branchfn,assertfn){
   if (branchfn && !branchfn(this)) return;
   var ret = new AssertionTree();
+  ret.setValid(this.valid());
   var asserts = this.assertions()
     , branches = this.branches()
   for (var i=0;i<asserts.length;++i){
