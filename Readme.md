@@ -43,9 +43,11 @@ npm:
   
   // checking state
   validator.valid();           // boolean
-  validator.errors();          // tree structure of validation errors 
+  validator.error();           // validation errors wrapped in an Error object
   validator.errorTrace();      // array of error messages with indented levels
   validator.assertionTrace();  // array of all assertions made on instance
+  validator.errorTree();       // tree structure of validation errors 
+  validator.assertionTree();   // tree structure of all assertions
 
 ```
 
@@ -60,8 +62,13 @@ npm:
   // attach plugin to Schema 
   Schema.use(plugin);
 
-  // once you have a correlation, you can call validate() on it
+  // now once you have a correlation, you can call validate() on it
   var valid = correlation.validate();
+
+  // handling validation errors
+  correlation.on('error', function(err){
+    console.log('validation error: %o', err);
+  }
 
   // subschema for given instance property
   // resolving valid combination conditions (allOf, anyOf, oneOf)
@@ -75,9 +82,9 @@ npm:
 
 ```
 
-Note that assertion state beyond valid/invalid (`errors()`, `errorTrace()`, 
-`assertionTrace()`, etc.) is _not_ currently available using the correlation
-binding mode.
+Note that assertion data beyond `valid()` and `error()` (`errorTree()`, 
+`errorTrace()`, `assertionTree()`, `assertionTrace()`) are _not_ currently 
+available using the 'correlation binding' mode.
 
 
 ## API
@@ -167,6 +174,14 @@ binding mode.
   Note that the ordering of valid schemas cannot be relied on, so it is
   recommended that either the top-level schema specify type and/or default, or
   _only one_ combination schema specify these.
+
+## Events
+
+### Correlation#emit('error', fn[err])
+
+  On validation failure, the correlation emits 'error' with the error.
+  `err.message` is the first "top-level" error. `err.trace` is the error trace
+  (equivalent of `validator.errorTrace()`).
 
 
 ## Running tests

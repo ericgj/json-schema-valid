@@ -50,7 +50,29 @@ describe('json-schema-valid: additional tests', function(){
 
   })
 
-  describe('subschema', function(){
+  describe('correlation validate', function(){
+
+    it('should emit error when invalid, with error object', function(done){
+      var schema = new Schema().parse({ minItems: 3 })
+        , instance = [1,2]
+        , corr = schema.bind(instance)
+        , count = 0
+
+      corr.on('error', function(err){
+        console.log('correlation validate error: %o', err);
+        count++;
+        if (count == 2) done();
+      })
+
+      corr.validate();
+      corr.instance = [1];
+      corr.validate();
+
+    })
+
+  })
+
+  describe('correlation subschema', function(){
 
     function getCorrelation(schemakey,instancekey){
       instancekey = instancekey || schemakey;
@@ -107,7 +129,7 @@ describe('json-schema-valid: additional tests', function(){
 
   })
 
-  describe('links', function(){
+  describe('correlation links', function(){
 
     function getCorrelation(schemakey,instancekey){
       instancekey = instancekey || schemakey;
@@ -152,7 +174,7 @@ describe('json-schema-valid: additional tests', function(){
 
   })
 
-  describe('coerce', function(){
+  describe('correlation coerce', function(){
 
     function getCorrelation(schemakey,instancekey){
       instancekey = instancekey || schemakey;
@@ -221,7 +243,7 @@ describe('json-schema-valid: additional tests', function(){
 
   })
 
-  describe('context', function(){
+  describe('correlation context', function(){
  
     it('errors should not include anyOf combination errors when context is valid', function(){
       var schema = new Schema().parse(fixtures.context.schema.anyof)

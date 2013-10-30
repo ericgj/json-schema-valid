@@ -73,11 +73,6 @@ Validator.prototype.error = function(){
   return ctx && ctx.error();
 }
 
-Validator.prototype.errorTree = function(){
-  var ctx = this.context()
-  return ctx && ctx.errorTree();
-}
-
 Validator.prototype.errorTrace = function(){
   var ctx = this.context()
   return ctx && ctx.errorTrace();
@@ -86,6 +81,16 @@ Validator.prototype.errorTrace = function(){
 Validator.prototype.assertionTrace = function(){
   var ctx = this.context()
   return ctx && ctx.assertionTrace();
+}
+
+Validator.prototype.errorTree = function(){
+  var ctx = this.context()
+  return ctx && ctx.errorTree();
+}
+
+Validator.prototype.assertionTree = function(){
+  var ctx = this.context()
+  return ctx && ctx.assertionTree();
 }
 
 /******************************** 
@@ -138,8 +143,12 @@ function plugin(target){
  */
 function validateBinding(fn){
   if (!this.schema || this.instance === undefined) return;
-  var validator = new Validator();
-  return validator.validate(this.schema,this.instance,fn);
+  var validator = new Validator()
+    , valid =  validator.validate(this.schema,this.instance,fn);
+  if (!valid){
+    this.emit('error', validator.error())
+  }
+  return (valid);
 }
 
 /*
