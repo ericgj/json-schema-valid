@@ -1,4 +1,9 @@
 
+## 0.1.2  29-Oct-2013
+
+  - add back emitter-based error handling, but with single error object
+    emitted after validation complete
+
 ## 0.1.1  28-Oct-2013
 
   - Remove emitter-based "push" error handling
