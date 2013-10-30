@@ -5,12 +5,13 @@
 
   A modular javascript [JSON Schema v4][jsonschema] validator.
   
-  Suitable for standalone use (see "simple function" mode below),
+  Suitable for standalone use (see "validator object" mode below),
   or together with other components to handle dereferencing,
-  correlation, hypermedia, etc. functions.
+  correlation, hypermedia, etc.
 
   If you are looking for a (mostly) complete JSON Schema toolkit,
-  see [json-schema-suite][suite].
+  see [json-schema-suite][suite] which bundles the components
+  together.
 
 
 ## Installation
