@@ -162,11 +162,11 @@ v5 spec will have such a standard for simple cases (see
   If the last `validate()` call returned false (invalid), then returns an error 
   object that wraps the error state:
     
-    - `message` is the top-level error message for the instance;
-    - `trace` is an array of error messages for invalid branches (see 
-       `errorTrace`);
-    - `tree` is a tree-structure of error state for all failed
-       validation conditions (see `errorTree`).
+  - `message` is the top-level error message for the instance;
+  - `trace` is an array of error messages for invalid branches (see 
+    `errorTrace`);
+  - `tree` is a tree-structure of error state for all failed
+    validation conditions (see `errorTree`).
 
 ### Validator.prototype.errorTrace()
 
@@ -178,11 +178,11 @@ v5 spec will have such a standard for simple cases (see
   If the last `validate()` call returned false (invalid), then returns a tree
   structure of all failed assertions on invalid branches:
 
-    - `assertions()` returns an array of failed assertions on the current
-      branch. Each assertion object contains, besides an error message, schema
-      and instance state and other info.
-    - `branches()` returns an array of branches (sub-contexts), each of which
-      has its own assertions and branches.
+  - `assertions()` returns an array of failed assertions on the current
+    branch. Each assertion object contains, besides an error message, schema
+    and instance state and other info.
+  - `branches()` returns an array of branches (sub-contexts), each of which
+    has its own assertions and branches.
 
   This structure can be used for custom error handling/messaging.
 
