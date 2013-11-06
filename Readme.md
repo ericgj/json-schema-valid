@@ -288,6 +288,15 @@ In node:
   documentation of how JSON Schema is supposed to work, both in the specs
   and on the [json-schema email list][group].
 
+  Regular expression for `datetime` format thanks to 
+  [Cameron Brooks][regex-datetime].
+  
+  Regular expression for `uri` format thanks to 
+  ["Yaffle"][regex-uri].
+  
+  Regular expression for `email` format thanks to 
+  [Jan Goyvaerts, regular-expressions.info][regex-email].
+  
 ## License
 
   MIT
@@ -304,4 +313,6 @@ In node:
 [group]: https://groups.google.com/forum/#!forum/json-schema
 [v5-proposals]: https://github.com/json-schema/json-schema/wiki/v5-Proposals
 [to-func]: https://github.com/component/to-function
-
+[regex-datetime]: http://www.pelagodesign.com/blog/2009/05/20/iso-8601-date-validation-that-doesnt-suck/
+[regex-uri]: https://gist.github.com/1088850
+[regex-email]: http://www.regular-expressions.info/email.html
