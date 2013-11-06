@@ -157,24 +157,44 @@ v5 spec will have such a standard for simple cases (see
 
   Result of the last `validate()` call (boolean).
 
-### Validator.prototype.errors()
+### Validator.prototype.error()
 
-  If the last `validate()` call returned false (invalid), then returns a tree of
-  context objects of the form `{ assertions: [ ], contexts: [ ] }`, where
-  `assertions` contains assertion (error) objects, and `contexts` contains other
-  (sub-)context objects.
-
-  This structure can be used to build custom error messaging.
+  If the last `validate()` call returned false (invalid), then returns an error 
+  object that wraps the error state:
+    
+    - `message` is the top-level error message for the instance;
+    - `trace` is an array of error messages for invalid branches (see 
+       `errorTrace`);
+    - `tree` is a tree-structure of error state for all failed
+       validation conditions (see `errorTree`).
 
 ### Validator.prototype.errorTrace()
 
   If the last `validate()` call returned false (invalid), then returns an array
   of error messages for invalid branches, indented according to context level.
 
+### Validator.prototype.errorTree()
+
+  If the last `validate()` call returned false (invalid), then returns a tree
+  structure of all failed assertions on invalid branches:
+
+    - `assertions()` returns an array of failed assertions on the current
+      branch. Each assertion object contains, besides an error message, schema
+      and instance state and other info.
+    - `branches()` returns an array of branches (sub-contexts), each of which
+      has its own assertions and branches.
+
+  This structure can be used for custom error handling/messaging.
+
 ### Validator.prototype.assertionTrace()
 
   Returns array of assertion messages for all validated branches of the last
   `validate()` call (regardless of whether valid or invalid).
+
+### Validator.prototype.assertionTree()
+
+  Returns tree structure of all assertions on all validated branches of the 
+  last `validate()` call (regardless of whether valid or invalid).
 
 ### Validator.addType( key:String, validator:Function )
 
