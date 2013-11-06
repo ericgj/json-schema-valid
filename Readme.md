@@ -302,6 +302,6 @@ In node:
 [emitter]: https://github.com/component/emitter
 [tv4]: https://github.com/geraintluff/tv4
 [group]: https://groups.google.com/forum/#!forum/json-schema
-[v5-proposals]: https://github.com/json-schema/wiki/v5-Proposals
+[v5-proposals]: https://github.com/json-schema/json-schema/wiki/v5-Proposals
 [to-func]: https://github.com/component/to-function
 
