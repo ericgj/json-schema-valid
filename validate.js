@@ -25,7 +25,12 @@ validate.addType = function(key,fn){
 
 validate.addFormat = function(key,fn){
   if (type(fn)=="regexp"){
-    r = fn; fn = function(val){ return !!val.match(r) };
+    var r = fn; 
+    fn = function(){ 
+      var val = this.instance();
+      if (val == undefined) return false;
+      return !!r.test(val.toString()); 
+    };
   }
   validate._formats[key] = fn;
   return this;
@@ -45,7 +50,7 @@ function validateType(){
   types = ('array' == type(types) ? types : [types])
   this.assert((indexOf(types,actual)>=0) || 
                 (isinteger && indexOf(types,'integer')>=0), 
-              "type does not match",
+              "does not match type",
               "type",
               actual
              );
@@ -68,8 +73,8 @@ function validateFormat(){
   if (!formatter) return; 
   
   this.assert( formatter.call(this),
-              "format does not match",
-              "format"
+              'does not match format',
+              'format'
              );
 }
 

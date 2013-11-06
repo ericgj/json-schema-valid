@@ -88,6 +88,56 @@ Note that assertion data beyond `valid()` and `error()` (`errorTree()`,
 available using the 'correlation binding' mode.
 
 
+## Formats
+
+The following JSON Schema v3 format validations are built-in:
+
+  - `datetime` (ISO 8601)
+  - `date` (YYYY-MM-DD)
+  - `time` (HH:MM:SS)
+  - `utc` (milliseconds since 1970-01-01 00:00 UTC)
+  - `regex`
+  - `phone`
+  - `uri`
+  - `email`
+
+In addition, a custom format `js-function` is available which allows 
+serialization of simple javascript expressions (using the 
+[to-function][to-func] library).
+
+You can use this for custom validation involving instance values.
+For instance, the rule "x must be greater than 2 times y" can be
+expressed in the schema as:
+
+  ```json
+  {
+    "type": "object",
+    "format": "js-function",
+    "js-function": "x > 2 * _.y",
+    "required": ["x","y"],
+    "properties": {
+      "x": { "type": "number" },
+      "y": { "type": "number" }
+    }
+  }
+  ```
+
+The expression is specified as a string (or object) value of the "js-function"
+key.
+
+(Note the [to-function][to-func] library also allows "query-object" style 
+conditions as well as strings, see its documentation for details.)
+
+Of course, this custom format will be ignored by other implementations, so
+if you are concerned about portability, you may wish to avoid using this 
+format. 
+
+Note however there is no current standard for custom validation involving
+several instance values (a typical use-case for js-function). The JSON Schema 
+v5 spec will have such a standard for simple cases (see 
+[draft proposals][v5-proposals]).
+
+
 ## API
 
 ### Validator.prototype.validate( schema:Schema, instance:Object, [desc:String], [callback:Function] )
@@ -222,7 +272,7 @@ In node:
 
 ## TODO
 
-  - add common format validators
+  - <del>add common format validators</del>
   - make error data compatible with [tv4][tv4] errors
   - <del>consider emitting schema-level errors or 'error trees' / rework internal
     Context objects</del>
@@ -252,4 +302,6 @@ In node:
 [emitter]: https://github.com/component/emitter
 [tv4]: https://github.com/geraintluff/tv4
 [group]: https://groups.google.com/forum/#!forum/json-schema
+[v5-proposals]: https://github.com/json-schema/wiki/v5-Proposals
+[to-func]: https://github.com/component/to-function
 

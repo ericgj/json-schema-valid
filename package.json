@@ -5,6 +5,7 @@
   "main": "index.js",
   "directories": {
     "type": "type",
+    "format": "format",
     "test": "test"
   },
   "scripts": {

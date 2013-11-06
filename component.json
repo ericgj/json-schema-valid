@@ -9,6 +9,7 @@
     "component/type": "*",
     "component/indexof": "*",
     "component/each": "*",
+    "component/to-function": "*",
     "forbeslindesay/is-browser": "*"
   },
   "development": {
@@ -26,7 +27,9 @@
     "type/array.js",
     "type/string.js",
     "type/numeric.js",
-    "type/enum.js"
+    "type/enum.js",
+    "format/regex.js",
+    "format/js-function.js"
   ]
 }
 

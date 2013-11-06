@@ -306,6 +306,63 @@ describe('json-schema-valid: additional tests', function(){
 
   })
 
+  describe('format: email', function(){
+     function getCorrelation(schemakey,instancekey){
+      instancekey = instancekey || schemakey;
+      var schema = new Schema().parse(fixtures['emailformat'].schema[schemakey]);
+      var instance = JSON.parse(JSON.stringify(fixtures['emailformat'].instance[instancekey]));
+      return schema.bind(instance);
+    }
+
+    it('should validate correctly when valid', function(){
+      var subject = getCorrelation('simple', 'valid')
+      subject.on('error', function(err){
+        console.log('email format valid error: %o', err);
+      });
+      var act = subject.validate();
+      assert(act);
+    })
+
+    it('should validate correctly when invalid', function(){
+      var subject = getCorrelation('simple', 'invalid')
+      subject.on('error', function(err){
+        console.log('email format invalid error: %o', err);
+      });
+      var act = subject.validate();
+      assert(!act);
+    })
+   
+  })
+
+  describe('format: js-function', function(){
+
+    function getCorrelation(schemakey,instancekey){
+      instancekey = instancekey || schemakey;
+      var schema = new Schema().parse(fixtures['js-function'].schema[schemakey]);
+      var instance = JSON.parse(JSON.stringify(fixtures['js-function'].instance[instancekey]));
+      return schema.bind(instance);
+    }
+
+    it('should validate correctly when valid', function(){
+      var subject = getCorrelation('simple', 'valid')
+      subject.on('error', function(err){
+        console.log('js-function valid error: %o', err);
+      });
+      var act = subject.validate();
+      assert(act);
+    })
+
+    it('should validate correctly when invalid', function(){
+      var subject = getCorrelation('simple', 'invalid')
+      subject.on('error', function(err){
+        console.log('js-function invalid error: %o', err);
+      });
+      var act = subject.validate();
+      assert(!act);
+    })
+
+  })
+
 })
     
 
@@ -582,6 +639,50 @@ fixtures.context.instance.nestedanyofinvalid = {
   "two": "string, not a number"
 }
 
+fixtures['emailformat'] = {};
+fixtures['emailformat'].schema = {};
+fixtures['emailformat'].schema.simple = {
+  type: 'object',
+  properties: {
+    email: { format: 'email' }
+  },
+  required: ["email"]
+}
+
+fixtures['emailformat'].instance = {};
+fixtures['emailformat'].instance.valid = {
+  email: "hello.kitty+junk@mail.a.b.c.edu"
+}
+fixtures['emailformat'].instance.invalid = {
+  email: "hello.kitty+junk@.a.b.c.edu"
+}
+
+
+
+
+
+fixtures['js-function'] = {};
+fixtures['js-function'].schema = {};
+fixtures['js-function'].schema.simple = {
+  type: 'object',
+  properties: {
+    one: { type: 'number' },
+    two: { type: 'number' }
+  },
+  required: ['one','two'],
+  format: "js-function",
+  "js-function": "one > (2 * _.two)"
+}
+
+fixtures['js-function'].instance = {};
+fixtures['js-function'].instance.valid = {
+  one: 11,
+  two: 5
+}
+fixtures['js-function'].instance.invalid = {
+  one: 10,
+  two: 5
+}
 
 
 
