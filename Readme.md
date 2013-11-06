@@ -83,9 +83,10 @@ npm:
 
 ```
 
-Note that assertion data beyond `valid()` and `error()` (`errorTree()`, 
-`errorTrace()`, `assertionTree()`, `assertionTrace()`) are _not_ currently 
-available using the 'correlation binding' mode.
+Note that "raw" assertion data (`assertionTree()`, `assertionTrace()`) are 
+_not_ currently available using the 'correlation binding' mode. The error
+trace and tree are available through the error object emitted after failed 
+validation (see below, "Events").
 
 
 ## Formats
@@ -232,7 +233,8 @@ v5 spec will have such a standard for simple cases (see
 
   On validation failure, the correlation emits 'error' with the error.
   `err.message` is the first "top-level" error. `err.trace` is the error trace
-  (equivalent of `validator.errorTrace()`).
+  (equivalent of `validator.errorTrace()`). `err.tree` is the error tree
+  (equivalent of `validator.errorTree()`).
 
 
 ## Running tests
