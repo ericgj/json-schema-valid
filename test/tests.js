@@ -306,6 +306,34 @@ describe('json-schema-valid: additional tests', function(){
 
   })
 
+  describe('undefined values', function(){
+    function getCorrelation(schemakey,instancekey){
+      instancekey = instancekey || schemakey;
+      var schema = new Schema().parse(fixtures['undef'].schema[schemakey]);
+      var instance = fixtures['undef'].instance[instancekey];
+      return schema.bind(instance);
+    }
+
+    it('should ignore type validation of javascript undefined values', function(){
+      var subject = getCorrelation('type', 'valid')
+      subject.once('error', function(err){
+        console.log('undefined values: type validation errors: %o', err.trace);
+      })
+      var act = subject.validate();
+      assert(act);
+    })
+
+    it('should ignore format validation of javascript undefined values', function(){
+      var subject = getCorrelation('format', 'valid')
+      subject.once('error', function(err){
+        console.log('undefined values: format validation errors: %o', err.trace);
+      })
+      var act = subject.validate();
+      assert(act);
+    })
+     
+  })
+
   describe('format: email', function(){
      function getCorrelation(schemakey,instancekey){
       instancekey = instancekey || schemakey;
@@ -637,6 +665,24 @@ fixtures.context.instance.anyofvalid = [
 fixtures.context.instance.nestedanyofinvalid = {
   "one": 11,
   "two": "string, not a number"
+}
+
+fixtures.undef = {}; 
+fixtures.undef.schema = {};
+fixtures.undef.schema.type = {
+  properties: {
+    one: { type: 'string' }
+  }
+}
+fixtures.undef.schema.format = {
+  properties: {
+    one: { format: 'email' }
+  }
+}
+
+fixtures.undef.instance = {};
+fixtures.undef.instance.valid = {
+  one: undefined
 }
 
 fixtures['emailformat'] = {};

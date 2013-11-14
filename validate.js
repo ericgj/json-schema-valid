@@ -46,6 +46,7 @@ function validateType(){
     , actual = type(instance)
     , isinteger = actual == 'number' && (instance==(instance|0))
   if (!types) return;
+  if (instance === undefined) return;
 
   types = ('array' == type(types) ? types : [types])
   this.assert((indexOf(types,actual)>=0) || 
@@ -67,7 +68,9 @@ function validateTypes(){
 
 function validateFormat(){
   var format = this.property('format')
+    , instance = this.instance()
   if (!format) return;
+  if (instance === undefined) return;
 
   var formatter = validate.getFormat(format)
   if (!formatter) return; 
