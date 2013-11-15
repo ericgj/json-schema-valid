@@ -390,6 +390,58 @@ describe('json-schema-valid: additional tests', function(){
     })
 
   })
+  
+  describe('format: non-null', function(){
+
+    it('should validate correctly when valid', function(){
+      var schema = new Schema().parse({ format: 'non-null' })
+        , instance = ''
+        , subject = schema.bind(instance)
+        , act = subject.validate()
+      assert(act);
+    })
+
+    it('should validate correctly when invalid', function(){
+      var schema = new Schema().parse({ format: 'non-null' })
+        , instance = null
+        , subject = schema.bind(instance)
+      subject.on('error', function(err){ console.log('non-null invalid error: %o', err); });
+      var act = subject.validate();
+      assert(!act);
+    })
+
+  })
+
+  describe('format: non-blank', function(){
+
+    it('should validate correctly when valid', function(){
+      var schema = new Schema().parse({ format: 'non-blank' })
+        , instance = '0'
+        , subject = schema.bind(instance)
+        , act = subject.validate()
+      assert(act);
+    })
+
+    it('should validate correctly when null (invalid)', function(){
+      var schema = new Schema().parse({ format: 'non-blank' })
+        , instance = null
+        , subject = schema.bind(instance)
+      subject.on('error', function(err){ console.log('non-blank null error: %o', err); });
+      var act = subject.validate();
+      assert(!act);
+    })
+
+    it('should validate correctly when empty string (invalid)', function(){
+      var schema = new Schema().parse({ format: 'non-blank' })
+        , instance = ''
+        , subject = schema.bind(instance)
+      subject.on('error', function(err){ console.log('non-blank empty string error: %o', err); });
+      var act = subject.validate();
+      assert(!act);
+    })
+
+  })
+
 
 })
     

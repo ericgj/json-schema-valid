@@ -29,7 +29,9 @@
     "type/numeric.js",
     "type/enum.js",
     "format/regex.js",
-    "format/js-function.js"
+    "format/js-function.js",
+    "format/non-null.js",
+    "format/non-blank.js"
   ]
 }
 
