@@ -216,7 +216,7 @@ function subschemaBinding(prop){
  *
  * Validates, and coerces instance according to:
  * (1) the first valid schema that specifies either `type` or `default` or both;
- * (2) the "top-level schema", otherwise
+ * (2) the "top-level schema", otherwise, whether instance is valid or invalid.
  *
  * Note that the ordering of valid schemas cannot be relied on, so it is
  * recommended that either the top-level schema specify type and/or default, or
@@ -229,9 +229,10 @@ function coerceBinding(){
   if (!this.schema || this.instance === undefined) return;
   var self = this
     , ret
-  this.validate( function(schemas){
+  var valid = this.validate( function(schemas){
     ret = buildCoerce.call(self,schemas);
   });
+  if (!valid) ret = buildCoerce.call(self,[this.schema]);
   return ret;
 }
 

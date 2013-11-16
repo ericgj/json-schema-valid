@@ -275,7 +275,8 @@ To use your own format:
     
   1.  the first valid schema that specifies either `type` or `default` or 
       both;
-  2.  the "top-level schema", otherwise
+  2.  the "top-level schema", otherwise, whether instance is valid or
+      invalid.
 
 
   Note that the ordering of valid schemas cannot be relied on, so it is

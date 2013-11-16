@@ -202,12 +202,6 @@ describe('json-schema-valid: additional tests', function(){
       assert(act.instance.three == expinst.three);
     })
 
-    it('should return undefined if not valid', function(){
-      var subject = getCorrelation('none','invalid')
-        , act = subject.coerce()
-      assert(act === undefined);
-    })
-
     it('should coerce using first valid schema that has type specified', function(){
       var subject = getCorrelation('comboType','obj')
         , act = subject.coerce()
@@ -245,6 +239,26 @@ describe('json-schema-valid: additional tests', function(){
         , act = subject.coerce()
       assert(act);
       assert(act.instance == subject.instance);
+    })
+
+    it('should coerce invalid instance, schema has no combinations', function(){
+      var subject = getCorrelation('none','invalid')
+        , act = subject.coerce()
+      assert(act);
+      console.log('coerce invalid instance: %o', act.instance);
+      assert(act.instance);
+      assert(fixtures.coerce.schema.none.default.one !== undefined);
+      assert(fixtures.coerce.instance.invalid.two !== undefined);
+      assert(act.instance['one'] == fixtures.coerce.schema.none.default.one);
+      assert(act.instance['two'] == fixtures.coerce.instance.invalid.two);
+    })
+
+    it('should coerce invalid instance, but not according to combinations, when schema has combinations', function(){
+      var subject = getCorrelation('comboType','invalid')
+        , act = subject.coerce()
+      assert(act);
+      console.log('coerce invalid instance combos: %o', act.instance);
+      assert(act.instance);
     })
 
   })
@@ -642,6 +656,7 @@ fixtures.coerce.schema.comboNone = {
   ]
 }
 
+
 fixtures.coerce.schema.booltype = {
   type: "boolean"
 }
@@ -663,6 +678,10 @@ fixtures.coerce.instance.array = [
 ]
 
 fixtures.coerce.instance.falseval = false;
+
+fixtures.coerce.instance.invalid = {
+  two: "3" 
+}
 
 
 fixtures.context = {}
