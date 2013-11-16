@@ -158,10 +158,11 @@ properties, e.g.:
   }
   ```
 
-, the resulting error message when x is null ('x type is null, expected string')
-is too internal a description of the condition.  The `non-null` format allows
-a more domain-specific description: 'x is missing'.  Similarly, the `non-blank`
-format considers both *null* and *zero-length string* values to be *missing*.
+, the resulting error message when x is null ('x type is null, expected
+string') can be too internal a description of the condition.  The `non-null`
+format allows a more domain-specific description: 'x is missing'.  Similarly,
+the `non-blank` format considers both *null* and *zero-length string* values
+to be *missing*.
 
 
 ## API
