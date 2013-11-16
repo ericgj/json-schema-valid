@@ -13,6 +13,11 @@ var fixtures = {};
 Schema.use(validationPlugin);
 Schema.use(hyperPlugin);
 
+/* add optional formats */
+validationPlugin.addFormat('js-function', require('json-schema-valid/format/js-function'))
+validationPlugin.addFormat('non-null', require('json-schema-valid/format/non-null'))
+validationPlugin.addFormat('non-blank', require('json-schema-valid/format/non-blank'))
+
 ///////////////////////////////////
 
 describe('json-schema-valid: additional tests', function(){

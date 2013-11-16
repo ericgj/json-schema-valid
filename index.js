@@ -15,9 +15,12 @@ var validateObject = require('./type/object')
   , validateEnum = require('./type/enum')
 
 var formatRegex = require('./format/regex')
+
+/* custom formats are not loaded by default
   , formatjsFunc = require('./format/js-function')
   , formatNonNull = require('./format/non-null')
   , formatNonBlank = require('./format/non-blank')
+*/
 
 // default validate() configuration
 
@@ -35,9 +38,12 @@ validate.addFormat('regex',formatRegex);
 validate.addFormat('email',/^[a-z0-9!#$%&'*+\/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+\/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i);
 validate.addFormat('phone',/^[0-9\(\)\.\-\s]+$/);
 validate.addFormat('uri',/^([^:\/?#]+:)?(\/\/(?:[^:@]*(?::[^:@]*)?@)?(([^:\/?#]*)(?::(\d*))?))?([^?#]*)(\?[^#]*)?(#[\s\S]*)?/);
+
+/* custom formats are not loaded by default
 validate.addFormat('js-function',formatjsFunc);
 validate.addFormat('non-null',formatNonNull);
 validate.addFormat('non-blank',formatNonBlank);
+*/
 
 // late-bind validate to Context.prototype here
 // to include all custom type/format functions
