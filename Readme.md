@@ -151,7 +151,7 @@ properties, e.g.:
 
   ```json
   {
-    "required": "x",
+    "required": ["x"],
     "properties": {
       "x": { "type": "string" }
     }
