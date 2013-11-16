@@ -102,7 +102,11 @@ The following JSON Schema v3 format validations are built-in:
   - `uri`
   - `email`
 
-In addition, a custom format `js-function` is available which allows 
+In addition, the following custom formats are available:
+
+### js-function
+
+A custom format `js-function` is available which allows 
 serialization of simple javascript expressions (using the 
 [to-function][to-func] library).
 
@@ -137,6 +141,27 @@ Note however there is no current standard for custom validation involving
 several instance values (a typical use-case for js-function). The JSON Schema 
 v5 spec will have such a standard for simple cases (see 
 [draft proposals][v5-proposals]).
+
+### non-null and non-blank
+
+These two formats allow more expressive error messages for cases where null
+and/or empty-string values are considered *missing*.  While it is possible
+to validate such cases with a schema that checks the type of required
+properties, e.g.:
+
+  ```json
+  {
+    "required": "x",
+    "properties": {
+      "x": { "type": "string" }
+    }
+  }
+  ```
+
+, the resulting error message when x is null ('x type is null, expected string')
+is too internal a description of the condition.  The `non-null` format allows
+a more domain-specific description: 'x is missing'.  Similarly, the `non-blank`
+format considers both *null* and *zero-length string* values to be *missing*.
 
 
 ## API
