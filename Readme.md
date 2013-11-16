@@ -164,6 +164,16 @@ format allows a more domain-specific description: 'x is missing'.  Similarly,
 the `non-blank` format considers both *null* and *zero-length string* values
 to be *missing*.
 
+### Using custom formats
+
+To use the custom formats listed above:
+
+    Validator.addFormat('js-function', require('json-schema-valid/format/js-function'));
+
+To use your own format: 
+
+    Validator.addFormat('my-format', myFormatFunction);
+
 
 ## API
 
