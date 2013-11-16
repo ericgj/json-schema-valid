@@ -177,15 +177,14 @@ To use your own format:
 
 ## API
 
-### Validator.prototype.validate( schema:Schema, instance:Object, [desc:String], [callback:Function] )
+### Validator.prototype.validate( schema:Schema, instance:Object, [callback:Function] )
 
-  Validate given instance against given schema.
-  Takes optional description string (for error handling) and/or
-  callback function. Callback receives array of valid schemas (i.e.,
-  the root-level schema plus any schemas valid through combination
-  conditions). Callback is only run if validation succeeds (valid).
+  Validate given instance against given schema.  Takes optional callback
+  function. Callback receives array of valid schemas (i.e., the root-level
+  schema plus any schemas valid through combination conditions). Callback
+  is only run if validation succeeds (valid).
 
-### Validator.prototype.validateRaw( schema:Object, instance:Object, [desc:String], [callback:Function] )
+### Validator.prototype.validateRaw( schema:Object, instance:Object, [callback:Function] )
 
   Validate given instance against given raw schema (parsing schema first).
 
@@ -243,7 +242,7 @@ To use your own format:
   Note specifying a regular expression here is essentially like having
   named schema `pattern` properties.
 
-### Correlation#validate( [desc:String], [callback:Function] )
+### Correlation#validate( [callback:Function] )
 
   Validate correlation instance against correlation schema. 
 
