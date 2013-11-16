@@ -7,6 +7,7 @@ var isBrowser = require('is-browser')
   , Validator = validationPlugin
   , hyperPlugin = isBrowser ? require('json-schema-hyper') : require('json-schema-hyper-component')
   , Schema = core.Schema
+  , formatDir = isBrowser ? 'json-schema-valid/format' : '../format'
 
 var fixtures = {};
 
@@ -14,9 +15,9 @@ Schema.use(validationPlugin);
 Schema.use(hyperPlugin);
 
 /* add optional formats */
-validationPlugin.addFormat('js-function', require('json-schema-valid/format/js-function'))
-validationPlugin.addFormat('non-null', require('json-schema-valid/format/non-null'))
-validationPlugin.addFormat('non-blank', require('json-schema-valid/format/non-blank'))
+validationPlugin.addFormat('js-function', require(formatDir + '/js-function'))
+validationPlugin.addFormat('non-null', require(formatDir + '/non-null'))
+validationPlugin.addFormat('non-blank', require(formatDir + '/non-blank'))
 
 ///////////////////////////////////
 
