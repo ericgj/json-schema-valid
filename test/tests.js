@@ -399,16 +399,16 @@ describe('json-schema-valid: additional tests', function(){
   describe('format: non-null', function(){
 
     it('should validate correctly when valid', function(){
-      var schema = new Schema().parse({ format: 'non-null' })
-        , instance = ''
+      var schema = new Schema().parse({ properties: { one: { format: 'non-null' } } })
+        , instance = {one: ''}
         , subject = schema.bind(instance)
         , act = subject.validate()
       assert(act);
     })
 
     it('should validate correctly when invalid', function(){
-      var schema = new Schema().parse({ format: 'non-null' })
-        , instance = null
+      var schema = new Schema().parse({ properties: { one: { format: 'non-null' } } })
+        , instance = {one: null}
         , subject = schema.bind(instance)
       subject.on('error', function(err){ console.log('non-null invalid error: %o', err); });
       var act = subject.validate();
@@ -420,16 +420,16 @@ describe('json-schema-valid: additional tests', function(){
   describe('format: non-blank', function(){
 
     it('should validate correctly when valid', function(){
-      var schema = new Schema().parse({ format: 'non-blank' })
-        , instance = '0'
+      var schema = new Schema().parse({ properties: { one: { format: 'non-blank' }}})
+        , instance = {one: '0'}
         , subject = schema.bind(instance)
         , act = subject.validate()
       assert(act);
     })
 
     it('should validate correctly when null (invalid)', function(){
-      var schema = new Schema().parse({ format: 'non-blank' })
-        , instance = null
+      var schema = new Schema().parse({ properties: { one: { format: 'non-blank' }}})
+        , instance = {one: null}
         , subject = schema.bind(instance)
       subject.on('error', function(err){ console.log('non-blank null error: %o', err); });
       var act = subject.validate();
@@ -437,8 +437,8 @@ describe('json-schema-valid: additional tests', function(){
     })
 
     it('should validate correctly when empty string (invalid)', function(){
-      var schema = new Schema().parse({ format: 'non-blank' })
-        , instance = ''
+      var schema = new Schema().parse({ properties: { one: { format: 'non-blank' }}})
+        , instance = {one: ''}
         , subject = schema.bind(instance)
       subject.on('error', function(err){ console.log('non-blank empty string error: %o', err); });
       var act = subject.validate();
