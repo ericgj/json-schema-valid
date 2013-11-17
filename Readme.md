@@ -142,27 +142,13 @@ several instance values (a typical use-case for js-function). The JSON Schema
 v5 spec will have such a standard for simple cases (see 
 [draft proposals][v5-proposals]).
 
-### non-null and non-blank
+### non-blank
 
-These two formats allow more expressive error messages for cases where null
-and/or empty-string values are considered *missing*.  While it is possible
-to validate such cases with a schema that checks the type of required
-properties, e.g.:
-
-  ```json
-  {
-    "required": ["x"],
-    "properties": {
-      "x": { "type": "string" }
-    }
-  }
-  ```
-
-, the resulting error message when x is null ('x type is null, expected
-string') can be too internal a description of the condition.  The `non-null`
-format allows a more domain-specific description: 'x is missing'.  Similarly,
-the `non-blank` format considers both *null* and *zero-length string* values
-to be *missing*.
+This format allows more expressive error messages for cases where empty-string
+values are considered *missing*. Instead of using `{ "minLength": 1 }` and
+getting error messages like _is less than the minimum length_, you can use
+`{ "format": "non-blank" }` and get _is missing_. Essentially, this format
+considers both *null* and *zero-length string* values to be *missing*.
 
 ### Using custom formats
 
