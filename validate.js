@@ -49,9 +49,11 @@ function validateType(){
   if (instance === undefined) return;
 
   types = ('array' == type(types) ? types : [types])
-  this.assert((indexOf(types,actual)>=0) || 
-                (isinteger && indexOf(types,'integer')>=0), 
-              "does not match type",
+  var valid = (indexOf(types,actual)>=0) || 
+                (isinteger && indexOf(types,'integer')>=0)
+    , isnull = (actual == 'null')
+  this.assert( valid, 
+              isnull ? "is missing" : "does not match type",
               "type",
               actual
              );

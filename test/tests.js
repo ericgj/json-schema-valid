@@ -354,6 +354,35 @@ describe('json-schema-valid: additional tests', function(){
      
   })
 
+  // note: kind of brittle tests
+  describe('null values', function(){
+
+    it('error predicate should be "is missing" when instance is null and non-null type specified', function(){
+      var schema = new Schema().parse({ properties: { one: { type: ['string','number'] } } })
+        , instance = {one: null}
+        , subject = schema.bind(instance)
+      subject.once('error', function(err){
+        console.log('null values: error predicate: %o', err.trace);
+        assert(err.trace[1].match(/is missing/i));
+      });
+      var act = subject.validate()
+      assert(!act);
+    })
+
+    it('error predicate should be "does not match type" when instance is not null and does not match non-null type specified', function(){
+      var schema = new Schema().parse({ properties: { one: { type: 'boolean' } } })
+        , instance = {one: 'jackrabbit'}
+        , subject = schema.bind(instance)
+      subject.once('error', function(err){
+        console.log('null values: error predicate: %o', err.trace);
+        assert(err.trace[1].match(/does not match type/i));
+      });
+      var act = subject.validate()
+      assert(!act);
+    })
+
+  })
+
   describe('format: email', function(){
      function getCorrelation(schemakey,instancekey){
       instancekey = instancekey || schemakey;
