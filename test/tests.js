@@ -16,7 +16,6 @@ Schema.use(hyperPlugin);
 
 /* add optional formats */
 validationPlugin.addFormat('js-function', require(formatDir + '/js-function'))
-validationPlugin.addFormat('non-null', require(formatDir + '/non-null'))
 validationPlugin.addFormat('non-blank', require(formatDir + '/non-blank'))
 
 ///////////////////////////////////
@@ -434,27 +433,6 @@ describe('json-schema-valid: additional tests', function(){
       subject.on('error', function(err){
         console.log('js-function invalid error: %o', err);
       });
-      var act = subject.validate();
-      assert(!act);
-    })
-
-  })
-  
-  describe('format: non-null', function(){
-
-    it('should validate correctly when valid', function(){
-      var schema = new Schema().parse({ properties: { one: { format: 'non-null' } } })
-        , instance = {one: ''}
-        , subject = schema.bind(instance)
-        , act = subject.validate()
-      assert(act);
-    })
-
-    it('should validate correctly when invalid', function(){
-      var schema = new Schema().parse({ properties: { one: { format: 'non-null' } } })
-        , instance = {one: null}
-        , subject = schema.bind(instance)
-      subject.on('error', function(err){ console.log('non-null invalid error: %o', err); });
       var act = subject.validate();
       assert(!act);
     })

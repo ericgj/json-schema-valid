@@ -18,7 +18,6 @@ var formatRegex = require('./format/regex')
 
 /* custom formats are not loaded by default
   , formatjsFunc = require('./format/js-function')
-  , formatNonNull = require('./format/non-null')
   , formatNonBlank = require('./format/non-blank')
 */
 
@@ -41,7 +40,6 @@ validate.addFormat('uri',/^([^:\/?#]+:)?(\/\/(?:[^:@]*(?::[^:@]*)?@)?(([^:\/?#]*
 
 /* custom formats are not loaded by default
 validate.addFormat('js-function',formatjsFunc);
-validate.addFormat('non-null',formatNonNull);
 validate.addFormat('non-blank',formatNonBlank);
 */
 
