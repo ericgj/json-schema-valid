@@ -168,12 +168,17 @@ to be *missing*.
 
 To use the custom formats listed above:
 
-    Validator.addFormat('js-function', require('json-schema-valid/format/js-function'));
+  ```javascript 
+  Validator.addFormat('js-function', 
+    require('ericgj-json-schema-valid/format/js-function')
+  );
+  ```
 
 To use your own format: 
 
-    Validator.addFormat('my-format', myFormatFunction);
-
+  ```javascript
+  Validator.addFormat('my-format', myFormatFunction);
+  ```
 
 ## API
 
